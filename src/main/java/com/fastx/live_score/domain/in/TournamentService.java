@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface TournamentService {
 
-    TournamentRes saveTournament(TournamentRequest request);
+    TournamentRes createNewTournament(TournamentRequest request);
+
     TournamentRes updateTournament(Long tournamentId, TournamentRequest request);
 
     TournamentRes getTournamentById(Long tournamentId);
 
     List<ShortTournamentRes> getAllTournaments();
-
 
     void deleteTournament(Long tournamentId);
 

@@ -68,7 +68,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<TeamRes> queryTeams(String q) {
+    public List<TeamRes> listTeams(String q) {
         List<TeamEntity> teams;
         if (q == null || q.isEmpty()) {
             teams = teamRepository.findAll();

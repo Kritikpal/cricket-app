@@ -205,7 +205,7 @@ public class Score {
         return score.build();
     }
 
-    public  String getLetter() {
+    public  String getWording() {
 
         if (this.getWickets() == 1 && this.getValidDeliveries() == 1) {
             return "W";

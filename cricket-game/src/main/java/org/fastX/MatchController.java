@@ -8,45 +8,37 @@ import org.fastX.models.events.*;
 
 @Getter
 public class MatchController {
-    private final Match match;
+    private Match match;
 
     public MatchController(Match match) {
         this.match = match;
     }
 
     public static MatchController startMatch(Long id, Team teamA, Team teamB, int maxOversPerInning, int noOfInnings) {
-        return new MatchController(Match.creaetMatch(new MatchStartEvent(
+        return new MatchController(Match.createMatch(new MatchStartEvent(
                 id, teamA, teamB, maxOversPerInning, noOfInnings
         )));
     }
 
-    public MatchController startInningsFrom(Innings innings) {
-        return null;
-    }
 
     public MatchController startNewInnings(Team team) {
-        match.triggerEvent(new StartInningsEvent(team));
+        match = match.triggerEvent(new StartInningsEvent(team));
         return this;
     }
 
-    public MatchController startNewInnings(Team team, Player striker, Player nonStriker, Player bowler) {
-        match.triggerEvent(new StartInningsEvent(team));
-        addBatter(striker);
-        addBatter(nonStriker);
-        startOver(bowler.getPlayerId());
-        return this;
-    }
 
     public MatchController startOver(Long bowlerId) {
         Player bowler = match.getBowlingTeam().getLinUp().stream().filter(player ->
                 player.getPlayerId().equals(bowlerId)).findFirst().orElseThrow();
-        match.triggerEvent(new OverStartingEvent(bowler, match.getCurrentInnings().getOvers().size()));
+        match = match.triggerEvent(new OverStartingEvent(bowler, match.getCurrentInnings().getOvers().size()));
         return this;
     }
 
 
-    public MatchController addBatter(Player striker) {
-        match.triggerEvent(new AddBatterInningsEvent(striker));
+    public MatchController addBatter(Long striker) {
+        Player batter = match.getBattingTeam().getLinUp().stream().filter(player ->
+                player.getPlayerId().equals(striker)).findFirst().orElseThrow();
+        match = match.triggerEvent(new AddBatterInningsEvent(batter));
         return this;
     }
 
@@ -75,50 +67,22 @@ public class MatchController {
      */
     public MatchController completeDelivery(String scoreString) {
         Score score = Score.parse(scoreString);
-        BallCompleteEvent.BallCompleteEventBuilder ballCompleteEvent = buildScorEvent(score);
-        match.triggerEvent(ballCompleteEvent.build());
+        BallCompleteEvent.BallCompleteEventBuilder ballCompleteEvent = buildScoreEvent(score);
+        match = match.triggerEvent(ballCompleteEvent.build());
         return this;
     }
 
-    private BallCompleteEvent.BallCompleteEventBuilder buildScorEvent(Score score) {
-        BallCompleteEvent.BallCompleteEventBuilder ballCompleteEvent = BallCompleteEvent.builder();
-        ballCompleteEvent.runScored(score);
-        match.getCurrentInnings().ifDeliverPossible();
-        ballCompleteEvent.striker(match.getCurrentInnings().getStriker().getPlayer());
-        ballCompleteEvent.nonStriker(match.getCurrentInnings().getNonStriker().getPlayer());
-        ballCompleteEvent.bowler(match.getCurrentInnings().getCurrentBowler().getPlayer());
-
-
-        ballCompleteEvent.playersCrossed(guessIfCrossed(score));
-
-        Score currentScore = match.getCurrentInnings().getBalls().getScore();
-
-        ballCompleteEvent.overNo(currentScore.overCount());
-        ballCompleteEvent.ballNo(currentScore.ballCount() + 1);
-        return ballCompleteEvent;
-    }
-
-    public MatchController completeDelivery(String scoreString,DismissType dismissType) {
-        BallCompleteEvent.BallCompleteEventBuilder ballCompleteEventBuilder = buildScorEvent(Score.parse(scoreString));
+    public MatchController completeDelivery(String scoreString, DismissType dismissType) {
+        BallCompleteEvent.BallCompleteEventBuilder ballCompleteEventBuilder = buildScoreEvent(Score.parse(scoreString));
         Dismissal dismissal = new Dismissal(dismissType,
                 match.getCurrentInnings().getCurrentBowler().getPlayer(),
                 dismissType.isBowler() ? match.getCurrentInnings().getStriker().getPlayer() :
                         match.getCurrentInnings().getNonStriker().getPlayer()
         );
         ballCompleteEventBuilder.dismissal(dismissal);
-        match.triggerEvent(ballCompleteEventBuilder.build());
+        match = match.triggerEvent(ballCompleteEventBuilder.build());
         return this;
     }
-
-
-    private boolean guessIfCrossed(Score score) {
-        if (score.getBatterRuns() == 0 && score.getWides() > 0) {
-            return score.getWides() % 2 == 0;
-        }
-        return (score.getBatterRuns() + score.getLegByes() + score.getByes()) % 2 == 1;
-    }
-
-
 
     public MatchController withDismissal(DismissType dismissType, Player player) {
         Dismissal dismissal = new Dismissal(dismissType,
@@ -137,11 +101,33 @@ public class MatchController {
                 lastEvent.isPlayersCrossed(),
                 Score.EMPTY
         );
-        match.triggerEvent(ballCompleteEvent);
+        match = match.triggerEvent(ballCompleteEvent);
         return this;
     }
 
+    private boolean guessIfCrossed(Score score) {
+        if (score.getBatterRuns() == 0 && score.getWides() > 0) {
+            return score.getWides() % 2 == 0;
+        }
+        return (score.getBatterRuns() + score.getLegByes() + score.getByes()) % 2 == 1;
+    }
 
+    private BallCompleteEvent.BallCompleteEventBuilder buildScoreEvent(Score score) {
+        BallCompleteEvent.BallCompleteEventBuilder ballCompleteEvent = BallCompleteEvent.builder();
+        ballCompleteEvent.runScored(score);
+        ballCompleteEvent.striker(match.getCurrentInnings().getStriker().getPlayer());
+        ballCompleteEvent.nonStriker(match.getCurrentInnings().getNonStriker().getPlayer());
+        ballCompleteEvent.bowler(match.getCurrentInnings().getCurrentBowler().getPlayer());
+
+
+        ballCompleteEvent.playersCrossed(guessIfCrossed(score));
+
+        Score currentScore = match.getCurrentInnings().getBalls().getScore();
+
+        ballCompleteEvent.overNo(currentScore.overCount());
+        ballCompleteEvent.ballNo(currentScore.ballCount() + 1);
+        return ballCompleteEvent;
+    }
 
 
 }

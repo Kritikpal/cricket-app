@@ -33,7 +33,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public TournamentRes saveTournament(TournamentRequest request) {
+    public TournamentRes createNewTournament(TournamentRequest request) {
         TournamentEntity formTournamentRequest = createFormTournamentRequest(request);
         TournamentEntity tournamentEntity = tournamentRepository.save(formTournamentRequest);
         return TournamentMapper.mapToTournament(tournamentEntity);

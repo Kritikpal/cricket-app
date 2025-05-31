@@ -12,7 +12,7 @@ public interface TeamService {
 
     TeamRes getTeamById(Long teamId);
 
-    List<TeamRes> queryTeams(String q);
+    List<TeamRes> listTeams(String q);
 
     void updateTeam(Long teamId, TeamRequest request);
 

@@ -1,42 +1,39 @@
 package org.fastX.models;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import org.fastX.models.events.BallCompleteEvent;
 import org.fastX.models.events.MatchEvent;
+import org.fastX.models.events.MatchEventTrigger;
 
+@Getter
 @AllArgsConstructor
-@Data
 public class BowlerInning implements MatchEventTrigger<BowlerInning> {
 
     private final Player player;
-    private int wicketsTaken;
-
-    private Balls balls = Balls.newBalls();
+    private final int wicketsTaken;
+    private final Balls balls;
 
     public static BowlerInning createNewStats(Player player) {
-        return new BowlerInning(player);
+        return new BowlerInning(player, 0, Balls.newBalls());
     }
-
-    public BowlerInning(Player player) {
-        this.player = player;
-    }
-
-
-
 
     @Override
     public BowlerInning triggerEvent(MatchEvent matchEvent) {
-        if (matchEvent instanceof BallCompleteEvent ballCompleteEvent) {
-            if (ballCompleteEvent.getBowler().equals(this.player)) {
-                balls.add(ballCompleteEvent);
-                if (ballCompleteEvent.getDismissal() != null) {
-                    if (ballCompleteEvent.getDismissal().getDismissType().isBowler()) {
-                        this.wicketsTaken++;
-                    }
-                }
+        if (matchEvent instanceof BallCompleteEvent ballCompleteEvent &&
+                ballCompleteEvent.getBowler().equals(this.player)) {
+
+            Balls updatedBalls = this.balls.add(ballCompleteEvent);
+            int updatedWickets = this.wicketsTaken;
+
+            if (ballCompleteEvent.getDismissal() != null &&
+                    ballCompleteEvent.getDismissal().getDismissType().isBowler()) {
+                updatedWickets++;
             }
+
+            return new BowlerInning(player, updatedWickets, updatedBalls);
         }
+
         return this;
     }
 }

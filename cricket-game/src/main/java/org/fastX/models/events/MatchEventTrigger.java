@@ -1,6 +1,4 @@
-package org.fastX.models;
-
-import org.fastX.models.events.MatchEvent;
+package org.fastX.models.events;
 
 public interface MatchEventTrigger<T> {
     T triggerEvent(MatchEvent matchEvent);

@@ -48,7 +48,7 @@ public class TournamentController {
             )
     )
     public AppResponse<TournamentRes> saveTournament(@RequestBody TournamentRequest request) {
-        return AppResponse.success(tournamentService.saveTournament(request));
+        return AppResponse.success(tournamentService.createNewTournament(request));
     }
 
     @PutMapping("/update/{id}")

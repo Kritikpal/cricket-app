@@ -126,7 +126,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public List<ShortPlayerRes> searchPlayer(String q) {
+    public List<ShortPlayerRes> listPlayer(String q) {
         List<PlayerEntity> all;
         if (q == null || q.isEmpty()) all = playerRepository.findAll();
         else {

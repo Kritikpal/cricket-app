@@ -59,7 +59,7 @@ public class PlayerController {
     @Tag(name = ApiDocsTags.SEARCH)
     @GetMapping("/searchPlayers")
     public AppResponse<List<ShortPlayerRes>> searchPlayer(@RequestParam(value = "q", required = false) String q) {
-        return AppResponse.success(playerService.searchPlayer(q));
+        return AppResponse.success(playerService.listPlayer(q));
     }
 
 

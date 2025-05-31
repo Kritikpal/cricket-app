@@ -13,42 +13,38 @@ import java.util.Objects;
 public class BatterInning {
 
     private final Player player;
-
-    private Dismissal dismissal;
-
-    private Balls balls = Balls.newBalls();
+    private final Dismissal dismissal;
+    private final Balls balls;
 
     public BatterInning(Player player) {
-        this.player = player;
+        this(player, null, Balls.newBalls());
     }
-
 
     public static BatterInning createNewStats(AddBatterInningsEvent addBatterInningsEvent) {
         return new BatterInning(addBatterInningsEvent.getPlayer());
     }
 
+    public BatterInning onMatchEvent(BallCompleteEvent event) {
+        Balls updatedBalls = this.balls;
+        Dismissal updatedDismissal = this.dismissal;
 
-    public BatterInning onMatchEvent(BallCompleteEvent ballCompleteEvent) {
-        if (ballCompleteEvent.getStriker().equals(player)) {
-            this.balls.add(ballCompleteEvent);
+        if (event.getStriker().equals(player)) {
+            updatedBalls = this.balls.add(event);
         }
-        if (ballCompleteEvent.getDismissal() != null) {
-            Dismissal dismissal = ballCompleteEvent.getDismissal();
-            if (dismissal.getDismissPlayer().equals(player)) {
-                this.dismissal = dismissal;
-            }
+
+        if (event.getDismissal() != null && event.getDismissal().getDismissPlayer().equals(player)) {
+            updatedDismissal = event.getDismissal();
         }
-        return this;
+
+        return new BatterInning(player, updatedDismissal, updatedBalls);
     }
-
 
     public boolean isOut() {
         return dismissal != null;
     }
 
-
     public boolean isSamePlayer(Player player) {
-        return player.equals(this.player);
+        return this.player.equals(player);
     }
 
     @Override
@@ -56,5 +52,10 @@ public class BatterInning {
         return Objects.hash(player.getPlayerId());
     }
 
-
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof BatterInning other)) return false;
+        return Objects.equals(player.getPlayerId(), other.player.getPlayerId());
+    }
 }

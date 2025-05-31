@@ -1,7 +1,7 @@
 package org.fastX.models;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
 import lombok.Getter;
 import org.fastX.enums.MatchStatus;
 import org.fastX.exception.GameException;
@@ -9,102 +9,101 @@ import org.fastX.models.events.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
+@Builder(toBuilder = true)
 @AllArgsConstructor
 public class Match implements MatchEventTrigger<Match> {
 
     private final Long matchId;
-    private final Team teamA;
-    private final Team teamB;
+    private final MatchInfo matchInfo;
+    private final MatchStatus matchStatus;
+    private final MatchResult matchResult;
+    private final Innings currentInnings;
+    private final List<Innings> inningsList;
 
-    private final int oversPerInnings;
-    private final int totalNoOfInnings;
+    public static Match createMatch(MatchStartEvent matchStartEvent) {
+        return Match.builder()
+                .matchId(matchStartEvent.matchId())
+                .matchInfo(MatchInfo.createNewMatch(
+                        matchStartEvent.teamA(),
+                        matchStartEvent.teamB(),
+                        matchStartEvent.totalOvers(),
+                        matchStartEvent.totalInnings()
+                ))
+                .matchStatus(MatchStatus.ONGOING)
+                .inningsList(new ArrayList<>())
+                .build();
 
-    private MatchStatus matchStatus = MatchStatus.NOT_STARTED;
-    private MatchResult matchResult;
-
-    private Innings currentInnings;
-    private List<Innings> inningsList = new ArrayList<>();
-
-    public Match(Long matchId, Team teamA, Team teamB, int oversPerInnings, int totalNoOfInnings) {
-        if (matchId == null) {
-            throw new GameException("Add match Id", 400);
-        }
-        if (teamA == null || teamB == null) {
-            throw new GameException("Add 2 teams", 400);
-        }
-        if (oversPerInnings < 1) {
-            throw new GameException("Add at least 1 over", 400);
-        }
-        if (totalNoOfInnings < 2) {
-            throw new GameException("Add at least 1 innings", 400);
-        }
-        this.matchId = matchId;
-        this.teamA = teamA;
-        this.teamB = teamB;
-        this.oversPerInnings = oversPerInnings;
-        this.totalNoOfInnings = totalNoOfInnings;
-    }
-
-    public static Match creaetMatch(MatchStartEvent matchStartEvent) {
-        return new Match(matchStartEvent.matchId(),
-                matchStartEvent.teamA(),
-                matchStartEvent.teamB(),
-                matchStartEvent.totalOvers(),
-                matchStartEvent.totalInnings())
-                .triggerEvent(matchStartEvent);
     }
 
     @Override
     public Match triggerEvent(MatchEvent event) {
-        if (event instanceof MatchStartEvent) {
-            this.matchStatus = MatchStatus.ONGOING;
-            return this;
-        }
+
         if (!matchStatus.equals(MatchStatus.ONGOING)) {
             throw new GameException("Match is not live", 400);
         }
+
         if (event instanceof StartInningsEvent startInningsEvent) {
-            Innings newScoreCard = Innings.createNewInnings(startInningsEvent);
-            this.currentInnings = newScoreCard;
-            this.inningsList.add(newScoreCard);
-        }
-        if (event instanceof BallCompleteEvent) {
-            if (this.currentInnings == null) {
-                throw new GameException("no scorecard selected", 400);
-            }
+            Innings newInnings = Innings.createNewInnings(startInningsEvent);
+
+            List<Innings> newInningsList = new ArrayList<>(this.inningsList);
+            newInningsList.add(newInnings);
+
+            return this.toBuilder()
+                    .currentInnings(newInnings)
+                    .inningsList(newInningsList)
+                    .build();
         }
 
-        this.currentInnings = this.currentInnings.triggerEvent(event);
-        return this;
+        if (event instanceof BallCompleteEvent && this.currentInnings == null) {
+            throw new GameException("No innings in progress", 400);
+        }
+
+
+        Innings updatedInnings = this.currentInnings.triggerEvent(event);
+        List<Innings> updatedInningsList = updateInningsList(this.inningsList, updatedInnings);
+
+        return this.toBuilder()
+                .currentInnings(updatedInnings)
+                .inningsList(updatedInningsList)
+                .build();
+    }
+
+    private List<Innings> updateInningsList(List<Innings> list, Innings updated) {
+        List<Innings> result = new ArrayList<>();
+        for (Innings innings : list) {
+            if (Objects.equals(innings.getTeam().getTeamId(), updated.getTeam().getTeamId())) {
+                result.add(updated);
+            } else {
+                result.add(innings);
+            }
+        }
+        return result;
     }
 
     public Team getBattingTeam() {
-        if (currentInnings != null) {
-            if (teamA != null && teamB != null) {
-                if (currentInnings.getTeam().getTeamId().equals(teamA.getTeamId())) {
-                    return teamA;
-                } else {
-                    return teamB;
-                }
-            }
-        }
-        throw new GameException("Select Team", 400);
+        return getTeamFromInnings(true);
     }
-
 
     public Team getBowlingTeam() {
-        if (currentInnings != null) {
-            if (teamA != null && teamB != null) {
-                if (currentInnings.getTeam().getTeamId().equals(teamA.getTeamId())) {
-                    return teamB;
-                } else {
-                    return teamA;
-                }
-            }
-        }
-        throw new GameException("Select Team", 400);
+        return getTeamFromInnings(false);
     }
 
+    public Innings getFirstInnings() {
+        return inningsList != null && !inningsList.isEmpty() ? inningsList.get(0) : null;
+    }
+
+    public Innings getSecondInnings() {
+        return inningsList != null && inningsList.size() > 1 ? inningsList.get(1) : null;
+    }
+
+    private Team getTeamFromInnings(boolean isBattingTeam) {
+        if (currentInnings == null || matchInfo.getTeamA() == null || matchInfo.getTeamB() == null) {
+            throw new GameException("Select Team", 400);
+        }
+        boolean isTeamA = currentInnings.getTeam().getTeamId().equals(matchInfo.getTeamA().getTeamId());
+        return isBattingTeam ? (isTeamA ? matchInfo.getTeamA() : matchInfo.getTeamB()) : (isTeamA ? matchInfo.getTeamB() : matchInfo.getTeamA());
+    }
 }

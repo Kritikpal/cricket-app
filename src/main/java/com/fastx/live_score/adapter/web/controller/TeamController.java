@@ -41,7 +41,7 @@ public class TeamController {
     @Tag(name = ApiDocsTags.SEARCH)
     @GetMapping("/searchTeams")
     public AppResponse<List<TeamRes>> searchTeams(@RequestParam(value = "q", required = false) String q) {
-        return AppResponse.success(teamService.queryTeams(q));
+        return AppResponse.success(teamService.listTeams(q));
     }
 
     @GetMapping("/getTeamInfo/{id}")

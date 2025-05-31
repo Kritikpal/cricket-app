@@ -18,7 +18,7 @@ public interface PlayerService {
 
     ByteArrayResource exportPlayersToCsv();
 
-    List<ShortPlayerRes> searchPlayer(String q);
+    List<ShortPlayerRes> listPlayer(String q);
 
     void updatePlayer(Long playerId, PlayerRequest request);
 

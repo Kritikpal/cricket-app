@@ -8,11 +8,12 @@ import java.util.function.Consumer;
 
 @Getter
 public class Balls implements Iterable<BallCompleteEvent> {
+
     private final List<BallCompleteEvent> balls;
-    private Score score;
+    private final Score score;
 
     private Balls(List<BallCompleteEvent> balls, Score score) {
-        this.balls = balls;
+        this.balls = Collections.unmodifiableList(balls); // defensive copy
         this.score = score;
     }
 
@@ -20,10 +21,13 @@ public class Balls implements Iterable<BallCompleteEvent> {
         return new Balls(new ArrayList<>(), Score.EMPTY);
     }
 
-    public void add(BallCompleteEvent ball) {
-        score = score.add(ball.getRunScored());
+    public Balls add(BallCompleteEvent ball) {
+        List<BallCompleteEvent> newBalls = new ArrayList<>(this.balls);
+        newBalls.add(ball);
 
-        balls.add(ball);
+        Score newScore = this.score.add(ball.getRunScored());
+
+        return new Balls(newBalls, newScore);
     }
 
     public BallCompleteEvent last() {
@@ -37,7 +41,7 @@ public class Balls implements Iterable<BallCompleteEvent> {
         return balls.iterator();
     }
 
-    public int size(){
+    public int size() {
         return balls.size();
     }
 
