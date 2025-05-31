@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.fastx</groupId>
     <artifactId>live_score</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>live_score</name>
     <description>Cricket Live score</description>
     <url/>
