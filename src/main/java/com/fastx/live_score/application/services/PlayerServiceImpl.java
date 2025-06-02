@@ -1,9 +1,8 @@
 package com.fastx.live_score.application.services;
 
-import com.fastx.live_score.adapter.web.response.ShortPlayerRes;
 import com.fastx.live_score.domain.in.PlayerService;
-import com.fastx.live_score.adapter.web.request.PlayerRequest;
-import com.fastx.live_score.adapter.web.response.PlayerRes;
+import com.fastx.live_score.adapter.admin.request.PlayerRequest;
+import com.fastx.live_score.domain.models.Player;
 import com.fastx.live_score.infra.db.entities.PlayerEntity;
 import com.fastx.live_score.application.exception.PlayerNotFoundException;
 import com.fastx.live_score.application.mapper.PlayerMapper;
@@ -80,7 +79,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public PlayerRes getPlayerById(Long playerId) {
+    public Player getPlayerById(Long playerId) {
         PlayerEntity entity = playerRepository.findById(playerId)
                 .orElseThrow(() -> new PlayerNotFoundException("Player not found with ID: " + playerId));
         return PlayerMapper.toPlayer(entity);
@@ -126,14 +125,14 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public List<ShortPlayerRes> listPlayer(String q) {
+    public List<Player> listPlayer(String q) {
         List<PlayerEntity> all;
         if (q == null || q.isEmpty()) all = playerRepository.findAll();
         else {
             all = playerRepository.searchByName(q);
         }
         return all.stream()
-                .map(PlayerMapper::toShortPlayer)
+                .map(PlayerMapper::toPlayer)
                 .collect(Collectors.toList());
     }
 

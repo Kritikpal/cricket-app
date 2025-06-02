@@ -1,15 +1,14 @@
 package com.fastx.live_score.application.mapper;
 
-import com.fastx.live_score.adapter.web.response.PlayerRes;
-import com.fastx.live_score.adapter.web.response.ShortPlayerRes;
+import com.fastx.live_score.domain.models.Player;
 import com.fastx.live_score.infra.db.entities.PlayerEntity;
 
 public class PlayerMapper {
 
-    public static PlayerRes toPlayer(PlayerEntity entity) {
+    public static Player toPlayer(PlayerEntity entity) {
         if (entity == null) return null;
 
-        return PlayerRes.builder()
+        return Player.builder()
                 .id(entity.getId())
                 .fullName(entity.getFullName())
                 .shortName(entity.getShortName())
@@ -24,7 +23,5 @@ public class PlayerMapper {
                 .build();
     }
 
-    public static ShortPlayerRes toShortPlayer(PlayerEntity playerEntity) {
-        return new ShortPlayerRes(playerEntity.getId(), playerEntity.getShortName());
-    }
+
 }

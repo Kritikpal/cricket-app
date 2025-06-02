@@ -1,26 +1,29 @@
 package com.fastx.live_score.application.mapper;
 
-import com.fastx.live_score.adapter.web.response.MatchRes;
-import com.fastx.live_score.adapter.web.response.ShortTeamRes;
+import com.fastx.live_score.adapter.admin.response.ListTeamRes;
+import com.fastx.live_score.domain.models.Match;
 import com.fastx.live_score.infra.db.entities.MatchEntity;
 
 public class MatchMapper {
-    public static MatchRes toMatch(MatchEntity matchEntity) {
-        MatchRes.MatchResBuilder builder = MatchRes.builder();
+    public static Match toMatch(MatchEntity matchEntity) {
+        Match.MatchBuilder builder = Match.builder();
 
+        builder.id(matchEntity.getId());
         if (matchEntity.getTeamEntityA() != null) {
-            builder.teamA(new ShortTeamRes(matchEntity.getId(), matchEntity.getTeamEntityA().getName()));
+            builder.teamA(ListTeamRes.from(TeamMapper.toResponse(matchEntity.getTeamEntityA())));
         }
-        if (matchEntity.getTeamEntityA() != null) {
-            builder.teamB(new ShortTeamRes(matchEntity.getId(), matchEntity.getTeamEntityB().getName()));
+        if (matchEntity.getTeamEntityB() != null) {
+            builder.teamB(ListTeamRes.from(TeamMapper.toResponse(matchEntity.getTeamEntityB())));
         }
         builder.startTime(matchEntity.getStartTime());
         builder.venue(matchEntity.getVenue());
+        builder.totalOvers(matchEntity.getTotalOvers());
         builder.endTime(matchEntity.getEndTime());
         builder.winningTeam(matchEntity.getWinningTeam());
         builder.electedTo(matchEntity.getElectedTo());
         builder.matchStatus(matchEntity.getMatchStatus());
         builder.tossWinner(matchEntity.getTossWinner());
+        builder.tournament(matchEntity.getTournament().getId());
         return builder.build();
     }
 }

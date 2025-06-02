@@ -1,8 +1,7 @@
 package com.fastx.live_score.domain.in;
 
-import com.fastx.live_score.adapter.web.response.ShortPlayerRes;
-import com.fastx.live_score.adapter.web.request.PlayerRequest;
-import com.fastx.live_score.adapter.web.response.PlayerRes;
+import com.fastx.live_score.adapter.admin.request.PlayerRequest;
+import com.fastx.live_score.domain.models.Player;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,11 +13,11 @@ public interface PlayerService {
 
     void importPlayersFromCsv(MultipartFile file);
 
-    PlayerRes getPlayerById(Long playerId);
+    Player getPlayerById(Long playerId);
 
     ByteArrayResource exportPlayersToCsv();
 
-    List<ShortPlayerRes> listPlayer(String q);
+    List<Player> listPlayer(String q);
 
     void updatePlayer(Long playerId, PlayerRequest request);
 

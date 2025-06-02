@@ -1,16 +1,17 @@
 package com.fastx.live_score.application.mapper;
 
-import com.fastx.live_score.adapter.web.response.ShortPlayerRes;
-import com.fastx.live_score.adapter.web.response.TeamRes;
+import com.fastx.live_score.adapter.admin.response.ListPlayerRes;
+import com.fastx.live_score.domain.models.Player;
+import com.fastx.live_score.domain.models.Team;
 import com.fastx.live_score.infra.db.entities.TeamEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class TeamMapper {
-    public static TeamRes toResponse(TeamEntity entity) {
+    public static Team toResponse(TeamEntity entity) {
         if (entity == null) return null;
-        TeamRes.TeamResBuilder builder = TeamRes.builder()
+        Team.TeamBuilder builder = Team.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .shortCode(entity.getShortCode())
@@ -23,8 +24,9 @@ public class TeamMapper {
         }
 
         if (entity.getPlayers() != null) {
-            List<ShortPlayerRes> players = entity.getPlayers().stream()
-                    .map(PlayerMapper::toShortPlayer)
+            List<ListPlayerRes> players = entity.getPlayers().stream()
+                    .map(PlayerMapper::toPlayer)
+                    .map(ListPlayerRes::toShortPlayer)
                     .collect(Collectors.toList());
             builder.players(players);
         }

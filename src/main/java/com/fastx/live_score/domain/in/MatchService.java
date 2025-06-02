@@ -1,17 +1,24 @@
 package com.fastx.live_score.domain.in;
 
-import com.fastx.live_score.adapter.web.request.CreateMatchRequest;
-import com.fastx.live_score.adapter.web.response.MatchRes;
+import com.fastx.live_score.adapter.admin.request.MatchRequest;
+import com.fastx.live_score.domain.models.Match;
+import com.fastx.live_score.infra.db.entities.enums.MatchStatus;
+
+import java.util.List;
 
 public interface MatchService {
 
-    MatchRes saveMatch(CreateMatchRequest request);
+    void saveMatch(MatchRequest request);
 
-    MatchRes getMatchById(Long matchId);
+    List<Match> listMatches(MatchStatus matchStatus);
 
-    MatchRes startMatch(Long matchId);
+    List<Match> listMatchesByTourId(long tourId);
 
-    MatchRes endMatch(Long matchId, int winingTeam);
+    Match getMatchById(Long matchId);
+
+    void startMatch(Long matchId);
+
+    void endMatch(Long matchId, int winingTeam);
 
 
 }

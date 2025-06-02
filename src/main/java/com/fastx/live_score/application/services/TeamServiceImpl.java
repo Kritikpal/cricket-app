@@ -1,17 +1,16 @@
 package com.fastx.live_score.application.services;
 
-import com.fastx.live_score.adapter.web.response.PlayerRes;
-import com.fastx.live_score.adapter.web.response.TeamRes;
+import com.fastx.live_score.domain.models.Player;
+import com.fastx.live_score.domain.models.Team;
 import com.fastx.live_score.domain.in.TeamService;
-import com.fastx.live_score.adapter.web.request.TeamRequest;
+import com.fastx.live_score.adapter.admin.request.TeamRequest;
 import com.fastx.live_score.infra.db.entities.PlayerEntity;
 import com.fastx.live_score.infra.db.entities.TeamEntity;
-import com.fastx.live_score.infra.db.entities.TournamentEntity;
 import com.fastx.live_score.application.mapper.PlayerMapper;
 import com.fastx.live_score.application.mapper.TeamMapper;
 import com.fastx.live_score.infra.db.jpaRepository.PlayerRepository;
 import com.fastx.live_score.infra.db.jpaRepository.TeamRepository;
-import com.fastx.live_score.infra.db.jpaRepository.TournamentRepository;
+import com.fastx.live_score.infra.db.jpaRepository.TournamentJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,15 +22,15 @@ import java.util.stream.Collectors;
 public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
-    private final TournamentRepository tournamentRepository;
+    private final TournamentJpaRepository tournamentJpaRepository;
     private final PlayerRepository playerRepository;
 
     @Autowired
     public TeamServiceImpl(TeamRepository teamRepository,
-                           TournamentRepository tournamentRepository,
+                           TournamentJpaRepository tournamentJpaRepository,
                            PlayerRepository playerRepository) {
         this.teamRepository = teamRepository;
-        this.tournamentRepository = tournamentRepository;
+        this.tournamentJpaRepository = tournamentJpaRepository;
         this.playerRepository = playerRepository;
     }
 
@@ -51,15 +50,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public void addPlayers(Long teamId, List<Long> playerIds) {
-        TeamEntity teamEntity = teamRepository.findById(teamId).orElseThrow();
-        List<PlayerEntity> players = playerRepository.findAllById(playerIds);
-        teamEntity.setPlayers(players);
-        teamRepository.save(teamEntity);
-    }
-
-    @Override
-    public TeamRes getTeamById(Long teamId) {
+    public Team getTeamById(Long teamId) {
         if (teamId == null || teamId <= 0) throw new IllegalArgumentException("Invalid team ID");
 
         return teamRepository.findById(teamId)
@@ -68,7 +59,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<TeamRes> listTeams(String q) {
+    public List<Team> listTeams(String q) {
         List<TeamEntity> teams;
         if (q == null || q.isEmpty()) {
             teams = teamRepository.findAll();
@@ -96,21 +87,9 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<PlayerRes> getAllPlayerFromTeam(Long teamId) {
+    public List<Player> getAllPlayerFromTeam(Long teamId) {
         TeamEntity teamEntity = teamRepository.findById(teamId).orElseThrow();
         return teamEntity.getPlayers().stream().map(PlayerMapper::toPlayer).toList();
-    }
-
-    @Override
-    public List<TeamRes> getTeamsByTournamentId(Long tournamentId) {
-        if (tournamentId == null || tournamentId <= 0) throw new IllegalArgumentException("Invalid tournament ID");
-
-        TournamentEntity tournament = tournamentRepository.findById(tournamentId)
-                .orElseThrow(() -> new NoSuchElementException("Tournament not found with ID: " + tournamentId));
-
-        return tournament.getParticipatingTeams().stream()
-                .map(TeamMapper::toResponse)
-                .collect(Collectors.toList());
     }
 
     private TeamEntity buildTeamEntity(TeamRequest request) {

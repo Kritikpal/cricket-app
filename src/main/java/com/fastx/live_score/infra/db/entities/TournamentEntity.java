@@ -39,6 +39,7 @@ public class TournamentEntity {
 
     private LocalDateTime endDate;
     private String location;
+    private String logoUrl;
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude

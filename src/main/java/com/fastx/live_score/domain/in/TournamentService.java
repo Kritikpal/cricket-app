@@ -1,21 +1,20 @@
 package com.fastx.live_score.domain.in;
 
 
-import com.fastx.live_score.adapter.web.request.TournamentRequest;
-import com.fastx.live_score.adapter.web.response.ShortTournamentRes;
-import com.fastx.live_score.adapter.web.response.TournamentRes;
+import com.fastx.live_score.adapter.admin.request.TournamentRequest;
+import com.fastx.live_score.domain.models.Tournament;
 
 import java.util.List;
 
 public interface TournamentService {
 
-    TournamentRes createNewTournament(TournamentRequest request);
+    Tournament createNewTournament(TournamentRequest request);
 
-    TournamentRes updateTournament(Long tournamentId, TournamentRequest request);
+    Tournament updateTournament(Long tournamentId, TournamentRequest request);
 
-    TournamentRes getTournamentById(Long tournamentId);
+    Tournament getTournamentById(Long tournamentId);
 
-    List<ShortTournamentRes> getAllTournaments();
+    List<Tournament> getAllTournaments();
 
     void deleteTournament(Long tournamentId);
 

@@ -1,26 +1,23 @@
 package com.fastx.live_score.domain.in;
 
-import com.fastx.live_score.adapter.web.response.PlayerRes;
-import com.fastx.live_score.adapter.web.request.TeamRequest;
-import com.fastx.live_score.adapter.web.response.TeamRes;
+import com.fastx.live_score.domain.models.Player;
+import com.fastx.live_score.adapter.admin.request.TeamRequest;
+import com.fastx.live_score.domain.models.Team;
 
 import java.util.List;
 
 public interface TeamService {
+
     void saveTeams(List<TeamRequest> request);
 
+    Team getTeamById(Long teamId);
 
-    TeamRes getTeamById(Long teamId);
-
-    List<TeamRes> listTeams(String q);
+    List<Team> listTeams(String q);
 
     void updateTeam(Long teamId, TeamRequest request);
 
-    void addPlayers(Long teamId, List<Long> playerIds);
-
     void deleteTeam(Long teamId);
 
-    List<PlayerRes> getAllPlayerFromTeam(Long teamId);
+    List<Player> getAllPlayerFromTeam(Long teamId);
 
-    List<TeamRes> getTeamsByTournamentId(Long tournamentId);
 }
