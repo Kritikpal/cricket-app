@@ -32,6 +32,7 @@ public class MobileController {
         return AppResponse.success(matchService.listMatchesByTourId(tourId));
     }
 
+
     @GetMapping("/listTournament")
     public AppResponse<List<ListTournamentRes>> getAllTournaments() {
         return AppResponse.success(
