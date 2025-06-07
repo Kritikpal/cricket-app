@@ -1,13 +1,15 @@
 package org.fastX.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import org.fastX.models.events.BallCompleteEvent;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 
 @Getter
-public class Balls implements Iterable<BallCompleteEvent> {
+public class Balls implements Iterable<BallCompleteEvent>, Serializable {
 
     private final List<BallCompleteEvent> balls;
     private final Score score;

@@ -6,13 +6,24 @@ import org.fastX.models.events.BallCompleteEvent;
 import org.fastX.models.events.MatchEvent;
 import org.fastX.models.events.MatchEventTrigger;
 
+import java.io.Serializable;
+
 @Getter
 @AllArgsConstructor
-public class BowlerInning implements MatchEventTrigger<BowlerInning> {
+public class BowlerInning implements MatchEventTrigger<BowlerInning>, Serializable {
 
     private final Player player;
     private final int wicketsTaken;
     private final Balls balls;
+
+    @Override
+    public String toString() {
+        return "BatterInning{" +
+                "player=" + player +
+                ", wicketsTaken=" + wicketsTaken +
+                ", balls=" + balls +
+                '}';
+    }
 
     public static BowlerInning createNewStats(Player player) {
         return new BowlerInning(player, 0, Balls.newBalls());
@@ -36,4 +47,9 @@ public class BowlerInning implements MatchEventTrigger<BowlerInning> {
 
         return this;
     }
+
+    public boolean isSamePlayer(Player player) {
+        return this.player.getPlayerId().equals(player.getPlayerId());
+    }
+
 }

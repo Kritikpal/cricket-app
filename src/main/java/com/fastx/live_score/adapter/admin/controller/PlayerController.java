@@ -19,7 +19,7 @@ import static com.fastx.live_score.core.config.APiConfig.API_VERSION_1;
 
 @RestController
 @RequestMapping(API_VERSION_1 + "/players")
-@Tag(name = "player", description = "All api for players")
+@Tag(name = "Player Admin")
 public class PlayerController {
 
     private final PlayerService playerService;

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "match", description = "All match apis")
+@Tag(name = "Match Admin")
 @RequestMapping(APiConfig.API_VERSION_1 + "/match")
 @RestController
 public class MatchController {
@@ -58,17 +58,10 @@ public class MatchController {
         return AppResponse.success(matchService.getMatchById(matchId));
     }
 
-    @PutMapping("/startMatch/{matchId}")
-    public AppResponse<String> startMatch(@PathVariable Long matchId) {
-        matchService.startMatch(matchId);
-        return AppResponse.success("Match Started");
+    @DeleteMapping("/delete/{matchId}")
+    public AppResponse<String> deleteMatch(@PathVariable Long matchId) {
+        matchService.deleteMatch(matchId);
+        return AppResponse.success("Deleted Successfully");
     }
-
-    @PutMapping("/endMatch/{matchId}")
-    public AppResponse<String> endMatch(@PathVariable Long matchId, @RequestBody int winningTeam) {
-        matchService.endMatch(matchId, winningTeam);
-        return AppResponse.success("Match Ended");
-    }
-
 
 }

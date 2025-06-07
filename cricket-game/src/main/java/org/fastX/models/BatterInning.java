@@ -6,15 +6,26 @@ import org.fastX.enums.Dismissal;
 import org.fastX.models.events.AddBatterInningsEvent;
 import org.fastX.models.events.BallCompleteEvent;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
 @AllArgsConstructor
-public class BatterInning {
+public class BatterInning implements Serializable {
 
     private final Player player;
     private final Dismissal dismissal;
     private final Balls balls;
+
+    @Override
+    public String toString() {
+        return "BatterInning{" +
+                "player=" + player +
+                ", dismissal=" + dismissal +
+                ", balls=" + balls +
+                '}';
+    }
+
 
     public BatterInning(Player player) {
         this(player, null, Balls.newBalls());

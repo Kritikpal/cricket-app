@@ -1,4 +1,4 @@
-package com.fastx.live_score.application.services;
+package com.fastx.live_score.application.adaptors;
 
 import com.fastx.live_score.domain.in.PlayerService;
 import com.fastx.live_score.adapter.admin.request.PlayerRequest;

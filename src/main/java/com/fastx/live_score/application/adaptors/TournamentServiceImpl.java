@@ -1,4 +1,4 @@
-package com.fastx.live_score.application.services;
+package com.fastx.live_score.application.adaptors;
 
 import com.fastx.live_score.adapter.admin.request.TournamentRequest;
 import com.fastx.live_score.domain.models.Tournament;
