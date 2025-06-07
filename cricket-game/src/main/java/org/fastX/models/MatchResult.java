@@ -2,10 +2,12 @@ package org.fastX.models;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 import static java.util.Objects.requireNonNull;
 
 @Data
-public class MatchResult {
+public class MatchResult implements Serializable {
 
     /**
      * Describes how a match was won, drawn, tied or otherwise concluded

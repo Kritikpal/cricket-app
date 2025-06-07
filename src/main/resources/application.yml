@@ -2,7 +2,7 @@ spring:
   application:
     name: live_score
   profiles:
-    active: prod
+    active: dev
 
 springdoc:
   api-docs:

@@ -17,7 +17,7 @@ import java.util.List;
 import static com.fastx.live_score.core.config.APiConfig.API_VERSION_1;
 
 @RestController
-@Tag(name = "Tournament", description = "All tournament apis")
+@Tag(name = "Tournament Admin")
 @RequestMapping(API_VERSION_1 + "/tournament")
 public class TournamentController {
 

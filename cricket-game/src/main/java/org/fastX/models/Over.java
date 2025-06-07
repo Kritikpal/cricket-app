@@ -1,5 +1,6 @@
 package org.fastX.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.fastX.models.events.BallCompleteEvent;
@@ -7,16 +8,28 @@ import org.fastX.models.events.MatchEvent;
 import org.fastX.models.events.MatchEventTrigger;
 import org.fastX.models.events.OverStartingEvent;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
 @AllArgsConstructor
-public class Over implements MatchEventTrigger<Over> {
+public class Over implements MatchEventTrigger<Over>  , Serializable {
 
     private final Balls balls;
     private final Player bowler;
     private final int overNo;
     private final int maxBalls;
+
+    @Override
+    public String toString() {
+        return "Over{" +
+                "balls=" + balls +
+                ", bowler=" + bowler +
+                ", overNo=" + overNo +
+                ", maxBalls=" + maxBalls +
+                '}';
+    }
+
 
     private Over(Balls balls, Player bowler, int overNo) {
         this.balls = balls;
@@ -57,6 +70,7 @@ public class Over implements MatchEventTrigger<Over> {
         return this;
     }
 
+    @JsonIgnore
     public String getOverString() {
 
         StringBuilder ballsStr = new StringBuilder();

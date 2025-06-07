@@ -18,7 +18,7 @@ import static com.fastx.live_score.core.config.APiConfig.API_VERSION_1;
 
 @RestController
 @RequestMapping(API_VERSION_1 + "/teams")
-@Tag(name = "teams", description = "Api for teams")
+@Tag(name = "Teams Admin")
 public class TeamController {
 
     private final TeamService teamService;

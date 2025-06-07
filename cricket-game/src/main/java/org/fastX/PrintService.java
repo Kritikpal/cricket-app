@@ -4,8 +4,6 @@ import org.fastX.models.*;
 
 import java.util.List;
 
-import org.fastX.models.events.BallCompleteEvent;
-
 public class PrintService {
     private final Match match;
 
@@ -14,32 +12,39 @@ public class PrintService {
     }
 
     public void printMethod() {
-        System.out.println("\n=========== Match Summary ==========\n");
-
-        System.out.println("Match   : " + match.getMatchInfo().getTeamA().getTeamName() + " vs " + match.getMatchInfo().getTeamB().getTeamName());
-
-        System.out.println("Match status   : " + match.getMatchStatus());
-
-        if (match.getFirstInnings() != null) {
-            System.out.println(getFormattedScoreboard(match.getFirstInnings()));
-        } else {
-            System.out.println("First innings not available.\n");
-        }
-
-        if (match.getSecondInnings() != null) {
-            System.out.println(getFormattedScoreboard(match.getSecondInnings()));
-        } else {
-            System.out.println("Second innings not available.\n");
-        }
-
-        System.out.println("\n=========== End of Match ==========\n");
+        System.out.println(getMatchSummary());
     }
 
-    private String getFormattedScoreboard(Innings innings) {
+    public String getMatchSummary() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("\n=========== Match Summary ==========\n\n");
+
+        sb.append("Match   : ")
+                .append(match.getMatchInfo().getTeamA().getTeamName())
+                .append(" vs ")
+                .append(match.getMatchInfo().getTeamB().getTeamName())
+                .append("\n");
+
+        sb.append("Match status   : ")
+                .append(match.getMatchStatus())
+                .append("\n");
+
+        if (match.getCurrentInnings() != null) {
+            sb.append(getFormattedScoreboard(match.getBattingTeam(), match.getCurrentInnings()));
+        } else {
+            sb.append("First innings not available.\n");
+        }
+
+        sb.append("\n=========== End of Match ==========\n");
+
+        return sb.toString();
+    }
+
+    private String getFormattedScoreboard(Team team, Innings innings) {
         if (innings == null) return "No innings data available.\n";
 
         Balls balls = innings.getBalls();
-        Team team = innings.getTeam();
         Innings.ScoreCardState scoreCardState = innings.getScoreCardState();
         Score teamScore = balls.getScore();
         Player striker = innings.getStriker() != null ? innings.getStriker().getPlayer() : null;

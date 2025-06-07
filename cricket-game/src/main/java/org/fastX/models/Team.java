@@ -1,12 +1,14 @@
 package org.fastX.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.fastX.exception.GameException;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class Team {
+public class Team implements Serializable {
     private final Long teamId;
     private final String teamName;
     List<Player> linUp;
@@ -22,4 +24,10 @@ public class Team {
         this.teamName = teamName;
         this.linUp = linUp;
     }
+
+    @JsonIgnore
+    public Player getPlayerById(Long id) {
+        return linUp.stream().filter(player -> player.getPlayerId().equals(id)).findFirst().orElseThrow();
+    }
+
 }

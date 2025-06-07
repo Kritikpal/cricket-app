@@ -1,12 +1,15 @@
 package org.fastX.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 import org.fastX.enums.MatchStatus;
 import org.fastX.exception.GameException;
 import org.fastX.models.events.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +17,7 @@ import java.util.Objects;
 @Getter
 @Builder(toBuilder = true)
 @AllArgsConstructor
-public class Match implements MatchEventTrigger<Match> {
+public class Match implements MatchEventTrigger<Match>, Serializable {
 
     private final Long matchId;
     private final MatchInfo matchInfo;
@@ -22,6 +25,19 @@ public class Match implements MatchEventTrigger<Match> {
     private final MatchResult matchResult;
     private final Innings currentInnings;
     private final List<Innings> inningsList;
+
+    @Override
+    public String toString() {
+        return "Match{" +
+                "matchId=" + matchId +
+                ", matchStatus=" + matchStatus +
+                ", matchInfo=" + matchInfo +
+                ", matchResult=" + matchResult +
+                ", currentInnings=" + currentInnings +
+                ", inningsList=" + inningsList +
+                '}';
+    }
+
 
     public static Match createMatch(MatchStartEvent matchStartEvent) {
         return Match.builder()
@@ -47,7 +63,6 @@ public class Match implements MatchEventTrigger<Match> {
 
         if (event instanceof StartInningsEvent startInningsEvent) {
             Innings newInnings = Innings.createNewInnings(startInningsEvent);
-
             List<Innings> newInningsList = new ArrayList<>(this.inningsList);
             newInningsList.add(newInnings);
 
@@ -71,6 +86,8 @@ public class Match implements MatchEventTrigger<Match> {
                 .build();
     }
 
+
+    @JsonIgnore
     private List<Innings> updateInningsList(List<Innings> list, Innings updated) {
         List<Innings> result = new ArrayList<>();
         for (Innings innings : list) {
@@ -83,25 +100,20 @@ public class Match implements MatchEventTrigger<Match> {
         return result;
     }
 
+    @JsonIgnore
     public Team getBattingTeam() {
         return getTeamFromInnings(true);
     }
 
+    @JsonIgnore
     public Team getBowlingTeam() {
         return getTeamFromInnings(false);
     }
 
-    public Innings getFirstInnings() {
-        return inningsList != null && !inningsList.isEmpty() ? inningsList.get(0) : null;
-    }
-
-    public Innings getSecondInnings() {
-        return inningsList != null && inningsList.size() > 1 ? inningsList.get(1) : null;
-    }
-
+    @JsonIgnore
     private Team getTeamFromInnings(boolean isBattingTeam) {
         if (currentInnings == null || matchInfo.getTeamA() == null || matchInfo.getTeamB() == null) {
-            throw new GameException("Select Team", 400);
+            return null;
         }
         boolean isTeamA = currentInnings.getTeam().getTeamId().equals(matchInfo.getTeamA().getTeamId());
         return isBattingTeam ? (isTeamA ? matchInfo.getTeamA() : matchInfo.getTeamB()) : (isTeamA ? matchInfo.getTeamB() : matchInfo.getTeamA());

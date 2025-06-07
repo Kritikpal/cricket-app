@@ -6,16 +6,17 @@ import lombok.Getter;
 import org.fastX.exception.GameException;
 import org.fastX.models.events.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Builder(toBuilder = true)
 @AllArgsConstructor
-public class Innings implements MatchEventTrigger<Innings> {
+public class Innings implements MatchEventTrigger<Innings>, Serializable {
 
     public enum ScoreCardState {
-        NOT_STARTED, OVER_RUNNING, BETWEEN_OVERS, COMPLETED, WICKET_TAKEN
+        OVER_RUNNING, BETWEEN_OVERS, COMPLETED, WICKET_TAKEN
     }
 
     private final Team team;
@@ -30,57 +31,40 @@ public class Innings implements MatchEventTrigger<Innings> {
     private final BowlerInning currentBowler;
     private final BowlerInning lastBowler;
 
-    public static Innings createNewInnings(StartInningsEvent inningsEvent) {
+    public static Innings createNewInnings(StartInningsEvent event) {
+        if (event.striker() == null || event.nonStriker() == null || event.bowler() == null
+                || event.team() == null) {
+            throw new GameException("Invalid Parameters", 400);
+        }
+        BatterInning striker = BatterInning.createNewStats(new AddBatterInningsEvent(event.striker()));
+        List<BatterInning> batterInnings = new ArrayList<>();
+        batterInnings.add(striker);
+
+
+        BatterInning nonStriker = BatterInning.createNewStats(new AddBatterInningsEvent(event.nonStriker()));
+        batterInnings.add(nonStriker);
+
+        BowlerInning currentBowler = BowlerInning.createNewStats(event.bowler());
+
+        List<BowlerInning> bowlerInnings = new ArrayList<>();
+        bowlerInnings.add(currentBowler);
+        Over over = Over.newOver(new OverStartingEvent(currentBowler.getPlayer(), 0));
+
         return Innings.builder()
-                .team(inningsEvent.team())
+                .team(event.team())
                 .balls(Balls.newBalls())
-                .scoreCardState(ScoreCardState.NOT_STARTED)
-                .batterInnings(new ArrayList<>())
-                .bowlerInnings(new ArrayList<>())
-                .overs(new ArrayList<>())
-                .currentOver(null)
-                .striker(null)
-                .nonStriker(null)
-                .currentBowler(null)
+                .scoreCardState(ScoreCardState.OVER_RUNNING)
+                .batterInnings(batterInnings)
+                .bowlerInnings(bowlerInnings)
+                .overs(List.of(over))
+                .currentOver(over)
+                .striker(striker)
+                .nonStriker(nonStriker)
+                .currentBowler(currentBowler)
                 .lastBowler(null)
                 .build();
     }
 
-    private Innings withUpdatedBatter(BatterInning updated) {
-        List<BatterInning> updatedList = new ArrayList<>(batterInnings);
-        for (int i = 0; i < updatedList.size(); i++) {
-            if (updatedList.get(i).isSamePlayer(updated.getPlayer())) {
-                updatedList.set(i, updated);
-                return this.toBuilder().batterInnings(updatedList).build();
-            }
-        }
-        updatedList.add(updated);
-        return this.toBuilder().batterInnings(updatedList).build();
-    }
-
-    private Innings withUpdatedBowler(BowlerInning updated) {
-        List<BowlerInning> updatedList = new ArrayList<>(bowlerInnings);
-        for (int i = 0; i < updatedList.size(); i++) {
-            if (updatedList.get(i).getPlayer().equals(updated.getPlayer())) {
-                updatedList.set(i, updated);
-                return this.toBuilder().bowlerInnings(updatedList).build();
-            }
-        }
-        updatedList.add(updated);
-        return this.toBuilder().bowlerInnings(updatedList).build();
-    }
-
-    private Innings withUpdatedOver(Over updated) {
-        List<Over> updatedOvers = new ArrayList<>(overs);
-        for (int i = 0; i < updatedOvers.size(); i++) {
-            if (updatedOvers.get(i).equals(updated)) {
-                updatedOvers.set(i, updated);
-                return this.toBuilder().overs(updatedOvers).build();
-            }
-        }
-        updatedOvers.add(updated);
-        return this.toBuilder().overs(updatedOvers).build();
-    }
 
     @Override
     public Innings triggerEvent(MatchEvent event) {
@@ -103,6 +87,7 @@ public class Innings implements MatchEventTrigger<Innings> {
 
         if (event instanceof OverStartingEvent overEvent) {
             Over newOver = Over.newOver(overEvent);
+
             BowlerInning newBowler = bowlerInnings.stream()
                     .filter(b -> b.getPlayer().equals(overEvent.getNewBowler()))
                     .findFirst()
@@ -121,10 +106,8 @@ public class Innings implements MatchEventTrigger<Innings> {
         }
 
         if (event instanceof BallCompleteEvent ballEvent) {
-            validateDeliveryState();
 
             Balls newBalls = balls.add(ballEvent);
-
             Over updatedOver = currentOver.triggerEvent(ballEvent);
             BowlerInning updatedBowler = currentBowler.triggerEvent(ballEvent);
             BatterInning updatedStriker = striker.onMatchEvent(ballEvent);
@@ -139,13 +122,19 @@ public class Innings implements MatchEventTrigger<Innings> {
                     .scoreCardState(nextScoreCardState(ballEvent, updatedOver))
                     .build();
 
-            // Ensure currentOver is updated in overs list
             updated = updated.withUpdatedOver(updatedOver)
                     .withUpdatedBatter(updatedStriker)
                     .withUpdatedBatter(updatedNonStriker)
                     .withUpdatedBowler(updatedBowler);
 
             if (ballEvent.isPlayersCrossed()) {
+                updated = updated.toBuilder()
+                        .striker(updated.nonStriker)
+                        .nonStriker(updated.striker)
+                        .build();
+            }
+
+            if (updated.currentOver.isOverCompleted()) {
                 updated = updated.toBuilder()
                         .striker(updated.nonStriker)
                         .nonStriker(updated.striker)
@@ -170,21 +159,46 @@ public class Innings implements MatchEventTrigger<Innings> {
         return this;
     }
 
+    private Innings withUpdatedBatter(BatterInning updated) {
+        List<BatterInning> updatedList = new ArrayList<>(batterInnings);
+        for (int i = 0; i < updatedList.size(); i++) {
+            if (updatedList.get(i).isSamePlayer(updated.getPlayer())) {
+                updatedList.set(i, updated);
+                return this.toBuilder().batterInnings(updatedList).build();
+            }
+        }
+        updatedList.add(updated);
+        return this.toBuilder().batterInnings(updatedList).build();
+    }
+
+    private Innings withUpdatedBowler(BowlerInning updated) {
+        List<BowlerInning> updatedList = new ArrayList<>(bowlerInnings);
+        for (int i = 0; i < updatedList.size(); i++) {
+            if (updatedList.get(i).isSamePlayer(updated.getPlayer())) {
+                updatedList.set(i, updated);
+                return this.toBuilder().bowlerInnings(updatedList).build();
+            }
+        }
+        updatedList.add(updated);
+        return this.toBuilder().bowlerInnings(updatedList).build();
+    }
+
+    private Innings withUpdatedOver(Over updated) {
+        List<Over> updatedOvers = new ArrayList<>(overs);
+        for (int i = 0; i < updatedOvers.size(); i++) {
+            if (updatedOvers.get(i).equals(updated)) {
+                updatedOvers.set(i, updated);
+                return this.toBuilder().overs(updatedOvers).build();
+            }
+        }
+        updatedOvers.add(updated);
+        return this.toBuilder().overs(updatedOvers).build();
+    }
+
     private ScoreCardState nextScoreCardState(BallCompleteEvent event, Over updatedOver) {
         if (event.getDismissal() != null) return ScoreCardState.WICKET_TAKEN;
         if (updatedOver.isOverCompleted()) return ScoreCardState.BETWEEN_OVERS;
         return ScoreCardState.OVER_RUNNING;
     }
 
-    private void validateDeliveryState() {
-        if (scoreCardState != ScoreCardState.OVER_RUNNING) {
-            throw new GameException("Invalid state: " + scoreCardState, 400);
-        }
-        if (striker == null || nonStriker == null || currentBowler == null || currentOver == null) {
-            throw new GameException("Incomplete setup", 400);
-        }
-        if (striker.equals(nonStriker)) {
-            throw new GameException("Striker and non-striker cannot be the same", 400);
-        }
-    }
 }

@@ -1,4 +1,4 @@
-package com.fastx.live_score.application.services;
+package com.fastx.live_score.application.adaptors;
 
 import com.fastx.live_score.adapter.admin.request.MatchRequest;
 import com.fastx.live_score.domain.models.Match;
@@ -89,6 +89,13 @@ public class MatchServiceImpl implements MatchService {
     public Match getMatchById(Long matchId) {
         MatchEntity matchEntity = matchRepository.findById(matchId).orElseThrow();
         return MatchMapper.toMatch(matchEntity);
+    }
+
+    @Override
+
+    public void deleteMatch(Long matchId){
+
+        matchRepository.deleteById(matchId);
     }
 
     @Override

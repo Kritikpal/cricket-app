@@ -2,8 +2,10 @@ package org.fastX.models;
 
 import lombok.Getter;
 
+import java.io.Serializable;
+
 @Getter
-public class MatchInfo {
+public class MatchInfo implements Serializable {
     private final Team teamA;
     private final Team teamB;
     private final int oversPerInnings;

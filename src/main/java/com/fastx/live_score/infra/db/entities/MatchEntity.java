@@ -59,6 +59,10 @@ public class MatchEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "match_card_cache_entity_id")
+    private LiveMatchCardCacheEntity matchCardCacheEntity;
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
