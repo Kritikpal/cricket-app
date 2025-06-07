@@ -1,20 +1,14 @@
 package org.fastX.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
 import org.fastX.models.events.BallCompleteEvent;
 
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 
-@Getter
-public class Balls implements Iterable<BallCompleteEvent>, Serializable {
+public record Balls(List<BallCompleteEvent> balls, Score score) implements Iterable<BallCompleteEvent>, Serializable {
 
-    private final List<BallCompleteEvent> balls;
-    private final Score score;
-
-    private Balls(List<BallCompleteEvent> balls, Score score) {
+    public Balls(List<BallCompleteEvent> balls, Score score) {
         this.balls = Collections.unmodifiableList(balls); // defensive copy
         this.score = score;
     }
@@ -27,14 +21,14 @@ public class Balls implements Iterable<BallCompleteEvent>, Serializable {
         List<BallCompleteEvent> newBalls = new ArrayList<>(this.balls);
         newBalls.add(ball);
 
-        Score newScore = this.score.add(ball.getRunScored());
+        Score newScore = this.score.add(ball.runScored());
 
         return new Balls(newBalls, newScore);
     }
 
     public BallCompleteEvent last() {
         return balls.stream()
-                .max(Comparator.comparingInt((BallCompleteEvent b) -> b.getOverNo() * 6 + b.getBallNo()))
+                .max(Comparator.comparingInt((BallCompleteEvent b) -> b.overNo() * 6 + b.ballNo()))
                 .orElse(null);
     }
 

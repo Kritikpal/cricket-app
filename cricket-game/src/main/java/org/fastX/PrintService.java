@@ -21,17 +21,17 @@ public class PrintService {
         sb.append("\n=========== Match Summary ==========\n\n");
 
         sb.append("Match   : ")
-                .append(match.getMatchInfo().getTeamA().getTeamName())
+                .append(match.matchInfo().teamA().teamName())
                 .append(" vs ")
-                .append(match.getMatchInfo().getTeamB().getTeamName())
+                .append(match.matchInfo().teamB().teamName())
                 .append("\n");
 
         sb.append("Match status   : ")
-                .append(match.getMatchStatus())
+                .append(match.matchStatus())
                 .append("\n");
 
-        if (match.getCurrentInnings() != null) {
-            sb.append(getFormattedScoreboard(match.getBattingTeam(), match.getCurrentInnings()));
+        if (match.currentInnings() != null) {
+            sb.append(getFormattedScoreboard(match.getBattingTeam(), match.currentInnings()));
         } else {
             sb.append("First innings not available.\n");
         }
@@ -44,34 +44,34 @@ public class PrintService {
     private String getFormattedScoreboard(Team team, Innings innings) {
         if (innings == null) return "No innings data available.\n";
 
-        Balls balls = innings.getBalls();
-        Innings.ScoreCardState scoreCardState = innings.getScoreCardState();
-        Score teamScore = balls.getScore();
-        Player striker = innings.getStriker() != null ? innings.getStriker().getPlayer() : null;
+        Balls balls = innings.balls();
+        Innings.ScoreCardState scoreCardState = innings.scoreCardState();
+        Score teamScore = balls.score();
+        Player striker = innings.striker() != null ? innings.striker().player() : null;
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("=== Scorecard for ").append(team != null ? team.getTeamName() : "Unknown Team").append(" ===\n\n");
+        sb.append("=== Scorecard for ").append(team != null ? team.teamName() : "Unknown Team").append(" ===\n\n");
 
         sb.append("Status   : ").append(scoreCardState != null ? scoreCardState : "N/A").append("\n");
 
         sb.append("\n--- Batting ---\n");
         sb.append(String.format("%-20s %5s %5s %5s %5s\n", "Name", "R", "B", "4s", "6s"));
 
-        for (BatterInning batsman : innings.getBatterInnings()) {
-            boolean isStriker = batsman.getPlayer().equals(striker);
+        for (BatterInning batsman : innings.batterInnings()) {
+            boolean isStriker = batsman.player().equals(striker);
             sb.append(getFormattedBatterStats(batsman, isStriker)).append("\n");
         }
 
         sb.append("\nScore     : ").append(teamScore != null ? teamScore.scoreSummary() : "N/A").append("\n");
         sb.append("Overs     : ").append(teamScore != null ? teamScore.overs() : "N/A").append("\n");
 
-        if (innings.getCurrentBowler() != null) {
-            sb.append("\nLast bowler: ").append(innings.getCurrentBowler().getPlayer().getFullName()).append("\n");
+        if (innings.currentBowler() != null) {
+            sb.append("\nLast bowler: ").append(innings.currentBowler().player().fullName()).append("\n");
         }
 
         sb.append("\n---- Overs Summary ----\n");
-        List<Over> overs = innings.getOvers();
+        List<Over> overs = innings.overs();
 
         for (Over over : overs) {
             sb.append(over.getOverString());
@@ -80,16 +80,16 @@ public class PrintService {
 
         sb.append("\n\n--- Bowling ---\n");
         sb.append(String.format("%-20s %5s %5s %5s %10s\n", "Name", "O", "R", "W", "Extras"));
-        for (BowlerInning bowler : innings.getBowlerInnings()) {
+        for (BowlerInning bowler : innings.bowlerInnings()) {
             sb.append(getFormattedBowlerStats(bowler)).append("\n");
         }
 
         sb.append("\n--- Extras Breakdown ---\n");
         if (teamScore != null) {
-            sb.append("Wides     : ").append(teamScore.getWides()).append("\n");
-            sb.append("No Balls  : ").append(teamScore.getNoBalls()).append("\n");
-            sb.append("Byes      : ").append(teamScore.getByes()).append("\n");
-            sb.append("Leg Byes  : ").append(teamScore.getLegByes()).append("\n");
+            sb.append("Wides     : ").append(teamScore.wides()).append("\n");
+            sb.append("No Balls  : ").append(teamScore.noBalls()).append("\n");
+            sb.append("Byes      : ").append(teamScore.byes()).append("\n");
+            sb.append("Leg Byes  : ").append(teamScore.legByes()).append("\n");
             sb.append("Total     : ").append(teamScore.totalExtras()).append("\n");
         }
 
@@ -97,34 +97,34 @@ public class PrintService {
     }
 
     private String getFormattedBatterStats(BatterInning batterInning, boolean isStriker) {
-        String name = batterInning.getPlayer() != null ? batterInning.getPlayer().getFullName() : "Unknown";
+        String name = batterInning.player() != null ? batterInning.player().fullName() : "Unknown";
         if (isStriker) name += "*";
 
         String outStatus = "";
-        if (batterInning.isOut() && batterInning.getDismissal() != null) {
-            outStatus = " " + batterInning.getDismissal().getWord();
+        if (batterInning.isOut() && batterInning.dismissal() != null) {
+            outStatus = " " + batterInning.dismissal().getWord();
         }
 
-        Score score = batterInning.getBalls().getScore();
+        Score score = batterInning.balls().score();
         return String.format("%-20s %5d %5d %5d %5d  %8s",
                 name,
-                score.getBatterRuns(),
-                score.getValidDeliveries(),
-                score.getFours(),
-                score.getSixes(),
+                score.batterRuns(),
+                score.validDeliveries(),
+                score.fours(),
+                score.sixes(),
                 outStatus
         );
     }
 
     private String getFormattedBowlerStats(BowlerInning bowlerInning) {
-        String name = bowlerInning.getPlayer() != null ? bowlerInning.getPlayer().getFullName() : "Unknown";
-        Score score = bowlerInning.getBalls().getScore();
+        String name = bowlerInning.player() != null ? bowlerInning.player().fullName() : "Unknown";
+        Score score = bowlerInning.balls().score();
 
         return String.format("%-20s %5s %5d %5d %10d",
                 name,
                 score.overs(),
                 score.bowlerRuns(),
-                bowlerInning.getWicketsTaken(),
+                bowlerInning.wicketsTaken(),
                 score.totalExtras()
         );
     }

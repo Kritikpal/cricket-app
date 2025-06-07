@@ -1,20 +1,13 @@
 package org.fastX.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.fastX.models.events.BallCompleteEvent;
 import org.fastX.models.events.MatchEvent;
 import org.fastX.models.events.MatchEventTrigger;
 
 import java.io.Serializable;
 
-@Getter
-@AllArgsConstructor
-public class BowlerInning implements MatchEventTrigger<BowlerInning>, Serializable {
-
-    private final Player player;
-    private final int wicketsTaken;
-    private final Balls balls;
+public record BowlerInning(Player player, int wicketsTaken,
+                           Balls balls) implements MatchEventTrigger<BowlerInning>, Serializable {
 
     @Override
     public String toString() {
@@ -32,13 +25,13 @@ public class BowlerInning implements MatchEventTrigger<BowlerInning>, Serializab
     @Override
     public BowlerInning triggerEvent(MatchEvent matchEvent) {
         if (matchEvent instanceof BallCompleteEvent ballCompleteEvent &&
-                ballCompleteEvent.getBowler().equals(this.player)) {
+                ballCompleteEvent.bowler().equals(this.player)) {
 
             Balls updatedBalls = this.balls.add(ballCompleteEvent);
             int updatedWickets = this.wicketsTaken;
 
-            if (ballCompleteEvent.getDismissal() != null &&
-                    ballCompleteEvent.getDismissal().getDismissType().isBowler()) {
+            if (ballCompleteEvent.dismissal() != null &&
+                    ballCompleteEvent.dismissal().getDismissType().isBowler()) {
                 updatedWickets++;
             }
 
@@ -49,7 +42,7 @@ public class BowlerInning implements MatchEventTrigger<BowlerInning>, Serializab
     }
 
     public boolean isSamePlayer(Player player) {
-        return this.player.getPlayerId().equals(player.getPlayerId());
+        return this.player.playerId().equals(player.playerId());
     }
 
 }

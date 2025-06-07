@@ -1,10 +1,7 @@
 package org.fastX.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import org.fastX.enums.MatchStatus;
 import org.fastX.exception.GameException;
 import org.fastX.models.events.*;
@@ -14,17 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Getter
 @Builder(toBuilder = true)
-@AllArgsConstructor
-public class Match implements MatchEventTrigger<Match>, Serializable {
-
-    private final Long matchId;
-    private final MatchInfo matchInfo;
-    private final MatchStatus matchStatus;
-    private final MatchResult matchResult;
-    private final Innings currentInnings;
-    private final List<Innings> inningsList;
+public record Match(Long matchId, MatchInfo matchInfo, MatchStatus matchStatus, MatchResult matchResult,
+                    Innings currentInnings,
+                    List<Innings> inningsList) implements MatchEventTrigger<Match>, Serializable {
 
     @Override
     public String toString() {
@@ -91,7 +81,7 @@ public class Match implements MatchEventTrigger<Match>, Serializable {
     private List<Innings> updateInningsList(List<Innings> list, Innings updated) {
         List<Innings> result = new ArrayList<>();
         for (Innings innings : list) {
-            if (Objects.equals(innings.getTeam().getTeamId(), updated.getTeam().getTeamId())) {
+            if (Objects.equals(innings.team().teamId(), updated.team().teamId())) {
                 result.add(updated);
             } else {
                 result.add(innings);
@@ -112,10 +102,10 @@ public class Match implements MatchEventTrigger<Match>, Serializable {
 
     @JsonIgnore
     private Team getTeamFromInnings(boolean isBattingTeam) {
-        if (currentInnings == null || matchInfo.getTeamA() == null || matchInfo.getTeamB() == null) {
+        if (currentInnings == null || matchInfo.teamA() == null || matchInfo.teamB() == null) {
             return null;
         }
-        boolean isTeamA = currentInnings.getTeam().getTeamId().equals(matchInfo.getTeamA().getTeamId());
-        return isBattingTeam ? (isTeamA ? matchInfo.getTeamA() : matchInfo.getTeamB()) : (isTeamA ? matchInfo.getTeamB() : matchInfo.getTeamA());
+        boolean isTeamA = currentInnings.team().teamId().equals(matchInfo.teamA().teamId());
+        return isBattingTeam ? (isTeamA ? matchInfo.teamA() : matchInfo.teamB()) : (isTeamA ? matchInfo.teamB() : matchInfo.teamA());
     }
 }

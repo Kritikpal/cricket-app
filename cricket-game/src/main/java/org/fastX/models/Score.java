@@ -9,9 +9,10 @@ import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Getter
 @Builder(toBuilder = true)
-public class Score implements Serializable {
+public record Score(int batterRuns, int wides, int wideDeliveries, int noBalls, int legByes, int byes, int penaltyRuns,
+                    int wickets, int dots, int singles, int twos, int threes, int fours, int sixes,
+                    int validDeliveries) implements Serializable {
 
     public static final Score EMPTY = new Score(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
@@ -38,22 +39,6 @@ public class Score implements Serializable {
     public static final Score WICKET = new Score(0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1);
 
 
-    private final int batterRuns;
-    private final int wides;
-    private final int wideDeliveries;
-    private final int noBalls;
-    private final int legByes;
-    private final int byes;
-    private final int penaltyRuns;
-    private final int wickets;
-    private final int dots;
-    private final int singles;
-    private final int twos;
-    private final int threes;
-    private final int fours;
-    private final int sixes;
-    private final int validDeliveries;
-
     @Override
     public String toString() {
         return "Score{" +
@@ -73,24 +58,6 @@ public class Score implements Serializable {
                 ", sixes=" + sixes +
                 ", validDeliveries=" + validDeliveries +
                 '}';
-    }
-
-    public Score(int batterRuns, int wides, int wideDeliveries, int noBalls, int legByes, int byes, int penaltyRuns, int wickets, int dots, int singles, int twos, int threes, int fours, int sixes, int validDeliveries) {
-        this.batterRuns = batterRuns;
-        this.wides = wides;
-        this.wideDeliveries = wideDeliveries;
-        this.noBalls = noBalls;
-        this.legByes = legByes;
-        this.byes = byes;
-        this.penaltyRuns = penaltyRuns;
-        this.wickets = wickets;
-        this.dots = dots;
-        this.singles = singles;
-        this.twos = twos;
-        this.threes = threes;
-        this.fours = fours;
-        this.sixes = sixes;
-        this.validDeliveries = validDeliveries;
     }
 
     public Score add(Score other) {
@@ -195,7 +162,7 @@ public class Score implements Serializable {
         int batterRuns = runs;
         boolean dotBallIfNoRuns = true;
 
-        Score.ScoreBuilder score = Score.EMPTY.toBuilder();
+        ScoreBuilder score = Score.EMPTY.toBuilder();
 
         if (modifier == null) {
             score.validDeliveries(1);
@@ -239,35 +206,36 @@ public class Score implements Serializable {
         return score.build();
     }
 
+    @JsonIgnore
     public String getWording() {
 
-        if (this.getWickets() == 1 && this.getValidDeliveries() == 1) {
+        if (this.wickets() == 1 && this.validDeliveries() == 1) {
             return "W";
         }
 
-        if (this.getDots() == 1 && this.getValidDeliveries() == 1) {
+        if (this.dots() == 1 && this.validDeliveries() == 1) {
             return ".";
         }
 
-        int batterRuns = this.getBatterRuns();
+        int batterRuns = this.batterRuns();
 
-        if (this.getNoBalls() == 1) {
+        if (this.noBalls() == 1) {
             return (batterRuns + 1) + "nb";  // Total runs scored on no ball
         }
 
-        if (this.getWides() > 0) {
-            return this.getWides() + "w";
+        if (this.wides() > 0) {
+            return this.wides() + "w";
         }
 
-        if (this.getByes() > 0) {
-            return this.getByes() + "b";
+        if (this.byes() > 0) {
+            return this.byes() + "b";
         }
 
-        if (this.getLegByes() > 0) {
-            return this.getLegByes() + "lb";
+        if (this.legByes() > 0) {
+            return this.legByes() + "lb";
         }
 
-        if (this.getValidDeliveries() == 1) {
+        if (this.validDeliveries() == 1) {
             return String.valueOf(batterRuns);
         }
 

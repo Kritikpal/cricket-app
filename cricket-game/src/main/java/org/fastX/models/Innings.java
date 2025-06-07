@@ -1,8 +1,6 @@
 package org.fastX.models;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import org.fastX.exception.GameException;
 import org.fastX.models.events.*;
 
@@ -10,26 +8,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 @Builder(toBuilder = true)
-@AllArgsConstructor
-public class Innings implements MatchEventTrigger<Innings>, Serializable {
+public record Innings(Team team, Balls balls, org.fastX.models.Innings.ScoreCardState scoreCardState,
+                      List<BatterInning> batterInnings, List<BowlerInning> bowlerInnings, List<Over> overs,
+                      Over currentOver, BatterInning striker, BatterInning nonStriker, BowlerInning currentBowler,
+                      BowlerInning lastBowler) implements MatchEventTrigger<Innings>, Serializable {
 
     public enum ScoreCardState {
         OVER_RUNNING, BETWEEN_OVERS, COMPLETED, WICKET_TAKEN
     }
-
-    private final Team team;
-    private final Balls balls;
-    private final ScoreCardState scoreCardState;
-    private final List<BatterInning> batterInnings;
-    private final List<BowlerInning> bowlerInnings;
-    private final List<Over> overs;
-    private final Over currentOver;
-    private final BatterInning striker;
-    private final BatterInning nonStriker;
-    private final BowlerInning currentBowler;
-    private final BowlerInning lastBowler;
 
     public static Innings createNewInnings(StartInningsEvent event) {
         if (event.striker() == null || event.nonStriker() == null || event.bowler() == null
@@ -48,7 +35,7 @@ public class Innings implements MatchEventTrigger<Innings>, Serializable {
 
         List<BowlerInning> bowlerInnings = new ArrayList<>();
         bowlerInnings.add(currentBowler);
-        Over over = Over.newOver(new OverStartingEvent(currentBowler.getPlayer(), 0));
+        Over over = Over.newOver(new OverStartingEvent(currentBowler.player(), 0));
 
         return Innings.builder()
                 .team(event.team())
@@ -89,7 +76,7 @@ public class Innings implements MatchEventTrigger<Innings>, Serializable {
             Over newOver = Over.newOver(overEvent);
 
             BowlerInning newBowler = bowlerInnings.stream()
-                    .filter(b -> b.getPlayer().equals(overEvent.getNewBowler()))
+                    .filter(b -> b.player().equals(overEvent.getNewBowler()))
                     .findFirst()
                     .orElse(BowlerInning.createNewStats(overEvent.getNewBowler()));
 
@@ -127,7 +114,7 @@ public class Innings implements MatchEventTrigger<Innings>, Serializable {
                     .withUpdatedBatter(updatedNonStriker)
                     .withUpdatedBowler(updatedBowler);
 
-            if (ballEvent.isPlayersCrossed()) {
+            if (ballEvent.playersCrossed()) {
                 updated = updated.toBuilder()
                         .striker(updated.nonStriker)
                         .nonStriker(updated.striker)
@@ -141,8 +128,8 @@ public class Innings implements MatchEventTrigger<Innings>, Serializable {
                         .build();
             }
 
-            if (ballEvent.getDismissal() != null) {
-                if (updated.striker.isSamePlayer(ballEvent.getDismissal().getDismissPlayer())) {
+            if (ballEvent.dismissal() != null) {
+                if (updated.striker.isSamePlayer(ballEvent.dismissal().getDismissPlayer())) {
                     updated = updated.toBuilder().striker(null).build();
                 } else {
                     updated = updated.toBuilder().nonStriker(null).build();
@@ -162,7 +149,7 @@ public class Innings implements MatchEventTrigger<Innings>, Serializable {
     private Innings withUpdatedBatter(BatterInning updated) {
         List<BatterInning> updatedList = new ArrayList<>(batterInnings);
         for (int i = 0; i < updatedList.size(); i++) {
-            if (updatedList.get(i).isSamePlayer(updated.getPlayer())) {
+            if (updatedList.get(i).isSamePlayer(updated.player())) {
                 updatedList.set(i, updated);
                 return this.toBuilder().batterInnings(updatedList).build();
             }
@@ -174,7 +161,7 @@ public class Innings implements MatchEventTrigger<Innings>, Serializable {
     private Innings withUpdatedBowler(BowlerInning updated) {
         List<BowlerInning> updatedList = new ArrayList<>(bowlerInnings);
         for (int i = 0; i < updatedList.size(); i++) {
-            if (updatedList.get(i).isSamePlayer(updated.getPlayer())) {
+            if (updatedList.get(i).isSamePlayer(updated.player())) {
                 updatedList.set(i, updated);
                 return this.toBuilder().bowlerInnings(updatedList).build();
             }
@@ -196,7 +183,7 @@ public class Innings implements MatchEventTrigger<Innings>, Serializable {
     }
 
     private ScoreCardState nextScoreCardState(BallCompleteEvent event, Over updatedOver) {
-        if (event.getDismissal() != null) return ScoreCardState.WICKET_TAKEN;
+        if (event.dismissal() != null) return ScoreCardState.WICKET_TAKEN;
         if (updatedOver.isOverCompleted()) return ScoreCardState.BETWEEN_OVERS;
         return ScoreCardState.OVER_RUNNING;
     }

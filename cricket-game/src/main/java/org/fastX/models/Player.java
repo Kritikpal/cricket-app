@@ -7,14 +7,8 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Data
-@AllArgsConstructor
 @Builder
-public class Player implements Serializable {
-
-    private Long playerId;
-    private String fullName;
-    private String shortName;
+public record Player(Long playerId, String fullName, String shortName) implements Serializable {
 
     @Override
     public int hashCode() {

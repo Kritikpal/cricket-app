@@ -1,6 +1,7 @@
 package com.fastx.live_score.infra.db;
 
-import com.fastx.live_score.core.utils.SerializationUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fastx.live_score.domain.out.MatchCardRepository;
 import com.fastx.live_score.infra.db.entities.LiveMatchCardCacheEntity;
 import com.fastx.live_score.infra.db.entities.MatchEntity;
@@ -15,11 +16,13 @@ public class MatchCardAdaptor implements MatchCardRepository {
 
     private final LiveMatchCacheJpaRepository liveMatchCacheJpaRepository;
     private final MatchRepository matchRepository;
+    private final ObjectMapper objectMapper;
 
     public MatchCardAdaptor(LiveMatchCacheJpaRepository liveMatchCacheJpaRepository,
                             MatchRepository matchRepository) {
         this.liveMatchCacheJpaRepository = liveMatchCacheJpaRepository;
         this.matchRepository = matchRepository;
+        this.objectMapper = new ObjectMapper(); // could also be injected as a bean
     }
 
     @Override
@@ -28,11 +31,11 @@ public class MatchCardAdaptor implements MatchCardRepository {
                 .orElseThrow(() -> new IllegalStateException("Match cache not found"));
         LiveMatchCardCacheEntity cacheEntity = matchEntity.getMatchCardCacheEntity();
         if (cacheEntity == null || cacheEntity.getCache() == null) {
-            throw new GameException("Match cache not found please restart the match", 400);
+            throw new GameException("Match cache not found, please restart the match", 400);
         }
 
         try {
-            return SerializationUtils.deserialize(cacheEntity.getCache(), Match.class);
+            return objectMapper.readValue(cacheEntity.getCache(), Match.class);
         } catch (Exception e) {
             throw new GameException("Failed to deserialize match cache", 500);
         }
@@ -40,7 +43,7 @@ public class MatchCardAdaptor implements MatchCardRepository {
 
     @Override
     public void cacheMatch(Match match) {
-        MatchEntity matchEntity = matchRepository.findById(match.getMatchId())
+        MatchEntity matchEntity = matchRepository.findById(match.matchId())
                 .orElseThrow();
         LiveMatchCardCacheEntity cacheEntity = matchEntity.getMatchCardCacheEntity();
         if (cacheEntity == null) {
@@ -48,10 +51,9 @@ public class MatchCardAdaptor implements MatchCardRepository {
         }
 
         try {
-            // Store serialized bytes directly
-            byte[] serialized = SerializationUtils.serialize(match);
-            cacheEntity.setCache(serialized);
-        } catch (Exception e) {
+            String json = objectMapper.writeValueAsString(match);
+            cacheEntity.setCache(json);
+        } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to serialize match", e);
         }
 

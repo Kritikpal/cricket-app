@@ -19,7 +19,7 @@ public class Dismissal {
         StringBuilder builder = new StringBuilder();
         builder.append(dismissType.toString())
                 .append(" ")
-                .append(disMissBy.getFullName());
+                .append(disMissBy.fullName());
         return builder.toString();
     }
 

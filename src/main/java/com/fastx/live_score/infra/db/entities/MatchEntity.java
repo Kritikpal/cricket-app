@@ -59,7 +59,7 @@ public class MatchEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "match_card_cache_entity_id")
     private LiveMatchCardCacheEntity matchCardCacheEntity;
 

@@ -1,13 +1,12 @@
 package org.fastX.models;
 
-import lombok.Data;
-
 import java.io.Serializable;
 
 import static java.util.Objects.requireNonNull;
 
-@Data
-public class MatchResult implements Serializable {
+public record MatchResult(org.fastX.models.MatchResult.ResultType resultType, Team winningTeam,
+                          org.fastX.models.MatchResult.Measure wonBy, Integer wonByAmount,
+                          boolean duckworthLewisApplied) implements Serializable {
 
     /**
      * Describes how a match was won, drawn, tied or otherwise concluded
@@ -48,19 +47,13 @@ public class MatchResult implements Serializable {
         }
     }
 
-    private final ResultType resultType;
-    private final Team winningTeam;
-    private final Measure wonBy;
-    private final Integer wonByAmount;
-    private final boolean duckworthLewisApplied;
-
     @Override
     public String toString() {
         return switch (resultType) {
             case NO_RESULT -> "No result";
-            case AWARDED -> "Awarded to " + winningTeam.getTeamId();
-            case CONCEDED -> "Conceded. Won by " + winningTeam.getTeamName();
-            case WON -> winningTeam.getTeamName() + " won by " + wonBy.toString(wonByAmount);
+            case AWARDED -> "Awarded to " + winningTeam.teamId();
+            case CONCEDED -> "Conceded. Won by " + winningTeam.teamName();
+            case WON -> winningTeam.teamName() + " won by " + wonBy.toString(wonByAmount);
             case TIED -> "Match tied";
             default -> resultType.toString();
         };

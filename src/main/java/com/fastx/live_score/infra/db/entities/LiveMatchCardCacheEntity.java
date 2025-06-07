@@ -29,8 +29,8 @@ public class LiveMatchCardCacheEntity {
     private boolean deleted = false;
 
     @Lob
-    @Column(nullable = false)
-    private byte[] cache;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String cache;
 
 
     @CreationTimestamp
