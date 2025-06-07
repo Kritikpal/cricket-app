@@ -12,6 +12,7 @@ import com.fastx.live_score.application.mapper.MatchMapper;
 import com.fastx.live_score.infra.db.jpaRepository.MatchRepository;
 import com.fastx.live_score.infra.db.jpaRepository.TeamRepository;
 import com.fastx.live_score.infra.db.jpaRepository.TournamentJpaRepository;
+import org.fastX.exception.GameException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -72,6 +74,9 @@ public class MatchServiceImpl implements MatchService {
             TeamEntity teamEntity = teamRepository.findById(request.getTeamBId()).orElseThrow();
             entity.setTeamEntityB(teamEntity);
         }
+        if (Objects.equals(request.getTeamAId(), request.getTeamBId())) {
+            throw new GameException("Cant have 2 same teams", 400);
+        }
         Optional.ofNullable(request.getVenue()).ifPresent(entity::setVenue);
         entity.setTotalOvers(request.getTotalOvers());
 
@@ -93,7 +98,7 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
 
-    public void deleteMatch(Long matchId){
+    public void deleteMatch(Long matchId) {
 
         matchRepository.deleteById(matchId);
     }

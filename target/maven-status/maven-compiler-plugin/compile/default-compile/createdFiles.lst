@@ -14,6 +14,7 @@ com\fastx\live_score\adapter\ball_user\AddScoreRequest.class
 com\fastx\live_score\domain\in\TournamentService.class
 com\fastx\live_score\adapter\admin\request\TeamRequest.class
 com\fastx\live_score\domain\Scoreboard$TeamScore.class
+com\fastx\live_score\infra\db\entities\LiveMatchCardCacheEntity$LiveMatchCardCacheEntityBuilder.class
 com\fastx\live_score\adapter\admin\request\TournamentRequest$TournamentRequestBuilder.class
 com\fastx\live_score\domain\models\Team$TeamBuilder.class
 com\fastx\live_score\application\mapper\TeamMapper.class

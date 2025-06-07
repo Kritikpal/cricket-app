@@ -8,6 +8,7 @@ import com.fastx.live_score.domain.out.MatchCardRepository;
 import com.fastx.live_score.infra.db.entities.MatchEntity;
 import com.fastx.live_score.infra.db.entities.enums.MatchStatus;
 import com.fastx.live_score.infra.db.jpaRepository.MatchRepository;
+import jakarta.transaction.Transactional;
 import org.fastX.MatchController;
 import org.fastX.PrintService;
 import org.fastX.models.Match;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class MatchEventServiceImpl implements MatchEventService {
 
     private final MatchRepository matchRepository;
