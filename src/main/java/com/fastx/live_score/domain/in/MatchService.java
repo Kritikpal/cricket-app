@@ -17,7 +17,7 @@ public interface MatchService {
     Match getMatchById(Long matchId);
 
     void startMatch(Long matchId);
-
+    void deleteMatch(Long matchId);
     void endMatch(Long matchId, int winingTeam);
 
 

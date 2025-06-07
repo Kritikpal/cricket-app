@@ -1,15 +1,17 @@
 package org.fastX.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import org.fastX.exception.GameException;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Getter
 @Builder(toBuilder = true)
-public class Score {
+public class Score implements Serializable {
 
     public static final Score EMPTY = new Score(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
@@ -52,7 +54,28 @@ public class Score {
     private final int sixes;
     private final int validDeliveries;
 
-    private Score(int batterRuns, int wides, int wideDeliveries, int noBalls, int legByes, int byes, int penaltyRuns, int wickets, int dots, int singles, int twos, int threes, int fours, int sixes, int validDeliveries) {
+    @Override
+    public String toString() {
+        return "Score{" +
+                "batterRuns=" + batterRuns +
+                ", wides=" + wides +
+                ", wideDeliveries=" + wideDeliveries +
+                ", noBalls=" + noBalls +
+                ", legByes=" + legByes +
+                ", byes=" + byes +
+                ", penaltyRuns=" + penaltyRuns +
+                ", wickets=" + wickets +
+                ", dots=" + dots +
+                ", singles=" + singles +
+                ", twos=" + twos +
+                ", threes=" + threes +
+                ", fours=" + fours +
+                ", sixes=" + sixes +
+                ", validDeliveries=" + validDeliveries +
+                '}';
+    }
+
+    public Score(int batterRuns, int wides, int wideDeliveries, int noBalls, int legByes, int byes, int penaltyRuns, int wickets, int dots, int singles, int twos, int threes, int fours, int sixes, int validDeliveries) {
         this.batterRuns = batterRuns;
         this.wides = wides;
         this.wideDeliveries = wideDeliveries;
@@ -90,57 +113,68 @@ public class Score {
                 .build();
     }
 
-    // === Breakdown ===
+
+    @JsonIgnore
     public int bowlerRuns() {
         return batterRuns + wides + noBalls + penaltyRuns;
     }
 
+    @JsonIgnore
     public int fieldingExtras() {
         return byes + legByes + penaltyRuns;
     }
 
+    @JsonIgnore
     public int bowlingExtras() {
         return wides + noBalls;
     }
 
+    @JsonIgnore
     public int totalExtras() {
         return wides + noBalls + byes + legByes + penaltyRuns;
     }
 
 
+    @JsonIgnore
     public int totalRunsConceded() {
         return bowlerRuns() + fieldingExtras();
     }
 
     // === Stats ===
 
+    @JsonIgnore
     public int overCount() {
         return (validDeliveries / 6);
     }
 
+    @JsonIgnore
     public int ballCount() {
         return (validDeliveries % 6);
     }
 
+    @JsonIgnore
     public String overs() {
         return overCount() + "." + ballCount();
     }
 
+    @JsonIgnore
     public double strikeRate() {
         return validDeliveries == 0 ? 0.0 : (batterRuns * 100.0) / validDeliveries;
     }
 
+    @JsonIgnore
     public double getEconomy() {
         return validDeliveries == 0 ? 0.0 : (totalRunsConceded() * 6.0) / validDeliveries;
     }
 
     // === Booleans / Conditions ===
 
-
+    @JsonIgnore
     public boolean isWicket() {
         return wickets > 0;
     }
 
+    @JsonIgnore
     public boolean isBoundary() {
         return fours > 0 || sixes > 0;
     }
@@ -205,7 +239,7 @@ public class Score {
         return score.build();
     }
 
-    public  String getWording() {
+    public String getWording() {
 
         if (this.getWickets() == 1 && this.getValidDeliveries() == 1) {
             return "W";
@@ -237,9 +271,10 @@ public class Score {
             return String.valueOf(batterRuns);
         }
 
-        throw new GameException("Cannot stringify unknown score pattern", 400);
+        return "0";
     }
 
+    @JsonIgnore
     public String scoreSummary() {
         return totalRunsConceded() + "/" + wickets;
     }

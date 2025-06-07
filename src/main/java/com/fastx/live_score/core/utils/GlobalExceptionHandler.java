@@ -2,6 +2,7 @@ package com.fastx.live_score.core.utils;
 
 import com.fastx.live_score.application.exception.PlayerNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.fastX.exception.GameException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<AppResponse<Object>> handleIllegalArgument(IllegalArgumentException ex, WebRequest request) {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getDescription(false));
     }
+
+    @ExceptionHandler(GameException.class)
+    public ResponseEntity<AppResponse<Object>> handelGameException(GameException exception, WebRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                request.getDescription(false));
+    }
+
 
     // Handle generic exceptions
     @ExceptionHandler(Exception.class)

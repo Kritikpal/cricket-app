@@ -7,6 +7,7 @@ import com.fastx.live_score.domain.in.TournamentService;
 import com.fastx.live_score.domain.models.Match;
 import com.fastx.live_score.adapter.admin.response.ListTournamentRes;
 import com.fastx.live_score.domain.models.Player;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@Tag(name = "Mobile Controller")
 public class MobileController {
     private final MatchService matchService;
     private final TournamentService tournamentService;
