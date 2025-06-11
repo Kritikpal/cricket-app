@@ -4,10 +4,11 @@ import com.fastx.live_score.domain.Scoreboard;
 import org.fastX.models.Match;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface MatchEventService {
 
-    Match startMatch(long matchId) throws IOException, ClassNotFoundException;
+    Match startMatch(long matchId, List<Long> teamA, List<Long> teamB) throws IOException, ClassNotFoundException;
 
     Scoreboard addBallEvent(long matchId, String string);
 

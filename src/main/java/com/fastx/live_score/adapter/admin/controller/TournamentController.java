@@ -2,7 +2,7 @@ package com.fastx.live_score.adapter.admin.controller;
 
 import com.fastx.live_score.adapter.admin.request.TournamentRequest;
 import com.fastx.live_score.adapter.admin.response.ListTournamentRes;
-import com.fastx.live_score.domain.models.Tournament;
+import com.fastx.live_score.domain.models.match.Tournament;
 import com.fastx.live_score.core.config.ApiDocsTags;
 import com.fastx.live_score.domain.in.TournamentService;
 import com.fastx.live_score.core.utils.AppResponse;

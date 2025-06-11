@@ -1,4 +1,4 @@
-package com.fastx.live_score.domain.models;
+package com.fastx.live_score.domain.models.match;
 
 import com.fastx.live_score.adapter.admin.response.ListPlayerRes;
 import lombok.AllArgsConstructor;

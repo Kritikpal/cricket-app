@@ -1,13 +1,11 @@
 package com.fastx.live_score.adapter.admin.controller;
 
-import com.fastx.live_score.domain.models.Player;
+import com.fastx.live_score.domain.models.match.Player;
 import com.fastx.live_score.core.config.ApiDocsTags;
 import com.fastx.live_score.adapter.admin.request.TeamRequest;
-import com.fastx.live_score.domain.models.Team;
+import com.fastx.live_score.domain.models.match.Team;
 import com.fastx.live_score.domain.in.TeamService;
 import com.fastx.live_score.core.utils.AppResponse;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

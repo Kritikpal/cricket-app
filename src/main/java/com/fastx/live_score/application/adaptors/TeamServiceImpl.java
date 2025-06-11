@@ -1,7 +1,7 @@
 package com.fastx.live_score.application.adaptors;
 
-import com.fastx.live_score.domain.models.Player;
-import com.fastx.live_score.domain.models.Team;
+import com.fastx.live_score.domain.models.match.Player;
+import com.fastx.live_score.domain.models.match.Team;
 import com.fastx.live_score.domain.in.TeamService;
 import com.fastx.live_score.adapter.admin.request.TeamRequest;
 import com.fastx.live_score.infra.db.entities.PlayerEntity;

@@ -1,6 +1,6 @@
 package com.fastx.live_score.application.mapper;
 
-import com.fastx.live_score.domain.models.Player;
+import com.fastx.live_score.domain.models.match.Player;
 import com.fastx.live_score.infra.db.entities.PlayerEntity;
 
 public class PlayerMapper {

@@ -8,7 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface MatchRepository extends JpaRepository<MatchEntity, Long> {
+public interface MatchEntityRepository extends JpaRepository<MatchEntity, Long> {
+
+
 
     List<MatchEntity> findByTournament_Id(Long tournamentId);
 

@@ -1,11 +1,10 @@
 package com.fastx.live_score.adapter.admin.controller;
 
 import com.fastx.live_score.adapter.admin.request.MatchRequest;
-import com.fastx.live_score.domain.models.Match;
+import com.fastx.live_score.domain.models.match.Match;
 import com.fastx.live_score.core.config.APiConfig;
 import com.fastx.live_score.domain.in.MatchService;
 import com.fastx.live_score.core.utils.AppResponse;
-import com.fastx.live_score.infra.db.entities.enums.MatchStatus;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;

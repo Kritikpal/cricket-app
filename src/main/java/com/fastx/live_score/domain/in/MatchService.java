@@ -1,7 +1,7 @@
 package com.fastx.live_score.domain.in;
 
 import com.fastx.live_score.adapter.admin.request.MatchRequest;
-import com.fastx.live_score.domain.models.Match;
+import com.fastx.live_score.domain.models.match.Match;
 import com.fastx.live_score.infra.db.entities.enums.MatchStatus;
 
 import java.util.List;

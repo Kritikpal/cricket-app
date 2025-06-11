@@ -1,8 +1,7 @@
 package com.fastx.live_score.application.mapper;
 
 import com.fastx.live_score.adapter.admin.response.ListPlayerRes;
-import com.fastx.live_score.domain.models.Player;
-import com.fastx.live_score.domain.models.Team;
+import com.fastx.live_score.domain.models.match.Team;
 import com.fastx.live_score.infra.db.entities.TeamEntity;
 
 import java.util.List;

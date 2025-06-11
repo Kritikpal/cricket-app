@@ -2,7 +2,7 @@ package com.fastx.live_score.application.adaptors;
 
 import com.fastx.live_score.domain.in.PlayerService;
 import com.fastx.live_score.adapter.admin.request.PlayerRequest;
-import com.fastx.live_score.domain.models.Player;
+import com.fastx.live_score.domain.models.match.Player;
 import com.fastx.live_score.infra.db.entities.PlayerEntity;
 import com.fastx.live_score.application.exception.PlayerNotFoundException;
 import com.fastx.live_score.application.mapper.PlayerMapper;

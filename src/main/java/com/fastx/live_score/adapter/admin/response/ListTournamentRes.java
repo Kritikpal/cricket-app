@@ -1,6 +1,6 @@
 package com.fastx.live_score.adapter.admin.response;
 
-import com.fastx.live_score.domain.models.Tournament;
+import com.fastx.live_score.domain.models.match.Tournament;
 import com.fastx.live_score.infra.db.entities.enums.TournamentStatus;
 import lombok.Getter;
 

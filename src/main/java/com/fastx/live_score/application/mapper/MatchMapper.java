@@ -1,7 +1,7 @@
 package com.fastx.live_score.application.mapper;
 
 import com.fastx.live_score.adapter.admin.response.ListTeamRes;
-import com.fastx.live_score.domain.models.Match;
+import com.fastx.live_score.domain.models.match.Match;
 import com.fastx.live_score.infra.db.entities.MatchEntity;
 
 public class MatchMapper {

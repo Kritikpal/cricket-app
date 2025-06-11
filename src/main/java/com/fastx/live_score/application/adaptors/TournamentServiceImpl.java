@@ -1,12 +1,12 @@
 package com.fastx.live_score.application.adaptors;
 
 import com.fastx.live_score.adapter.admin.request.TournamentRequest;
-import com.fastx.live_score.domain.models.Tournament;
+import com.fastx.live_score.domain.models.match.Tournament;
 import com.fastx.live_score.domain.in.TournamentService;
 import com.fastx.live_score.infra.db.entities.TeamEntity;
 import com.fastx.live_score.infra.db.entities.TournamentEntity;
 import com.fastx.live_score.application.mapper.TournamentMapper;
-import com.fastx.live_score.infra.db.jpaRepository.MatchRepository;
+import com.fastx.live_score.infra.db.jpaRepository.MatchEntityRepository;
 import com.fastx.live_score.infra.db.jpaRepository.TeamRepository;
 import com.fastx.live_score.infra.db.jpaRepository.TournamentJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class TournamentServiceImpl implements TournamentService {
     private final TeamRepository teamRepository;
 
     @Autowired
-    public TournamentServiceImpl(MatchRepository matchRepository, TournamentJpaRepository tournamentJpaRepository, TeamRepository teamRepository) {
+    public TournamentServiceImpl(MatchEntityRepository matchEntityRepository, TournamentJpaRepository tournamentJpaRepository, TeamRepository teamRepository) {
         this.tournamentJpaRepository = tournamentJpaRepository;
         this.teamRepository = teamRepository;
     }

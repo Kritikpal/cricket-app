@@ -1,10 +1,14 @@
 package com.fastx.live_score.adapter.ball_user;
 
+import com.fastx.live_score.adapter.ball_user.req.AddScoreRequest;
+import com.fastx.live_score.adapter.ball_user.req.StartInningsRequest;
+import com.fastx.live_score.adapter.ball_user.req.StartMatchRequest;
 import com.fastx.live_score.core.config.APiConfig;
 import com.fastx.live_score.core.utils.AppResponse;
 import com.fastx.live_score.domain.Scoreboard;
 import com.fastx.live_score.domain.in.MatchEventService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.fastX.models.Match;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +26,12 @@ public class BallUserController {
     }
 
     @PutMapping("/start")
-    public AppResponse<Match> startMatch(@PathVariable Long id) throws IOException, ClassNotFoundException {
-        return AppResponse.success(matchEventService.startMatch(id));
+    public AppResponse<Match> startMatch(@PathVariable Long id, @Valid @RequestBody StartMatchRequest startMatchRequest) throws IOException, ClassNotFoundException {
+        return AppResponse.success(matchEventService.startMatch(id, startMatchRequest.teamA(), startMatchRequest.teamB()));
     }
 
     @PutMapping("/startInnings")
-    public AppResponse<Scoreboard> startInning(@PathVariable Long id, @RequestBody StartInningsRequest request) {
+    public AppResponse<Scoreboard> startInning(@PathVariable Long id, @Valid @RequestBody StartInningsRequest request) {
         return AppResponse.success(
                 matchEventService.startInnings(id, request.getTeamId(), request.getStriker(), request.getNonStriker(), request.getBowlerId())
         );

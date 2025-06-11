@@ -2,7 +2,7 @@ package com.fastx.live_score.domain.in;
 
 
 import com.fastx.live_score.adapter.admin.request.TournamentRequest;
-import com.fastx.live_score.domain.models.Tournament;
+import com.fastx.live_score.domain.models.match.Tournament;
 
 import java.util.List;
 

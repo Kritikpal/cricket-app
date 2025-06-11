@@ -6,7 +6,8 @@ import com.fastx.live_score.domain.out.MatchCardRepository;
 import com.fastx.live_score.infra.db.entities.LiveMatchCardCacheEntity;
 import com.fastx.live_score.infra.db.entities.MatchEntity;
 import com.fastx.live_score.infra.db.jpaRepository.LiveMatchCacheJpaRepository;
-import com.fastx.live_score.infra.db.jpaRepository.MatchRepository;
+import com.fastx.live_score.infra.db.jpaRepository.MatchEntityRepository;
+import org.fastX.enums.MatchStatus;
 import org.fastX.exception.GameException;
 import org.fastX.models.Match;
 import org.springframework.stereotype.Service;
@@ -15,19 +16,19 @@ import org.springframework.stereotype.Service;
 public class MatchCardAdaptor implements MatchCardRepository {
 
     private final LiveMatchCacheJpaRepository liveMatchCacheJpaRepository;
-    private final MatchRepository matchRepository;
+    private final MatchEntityRepository matchEntityRepository;
     private final ObjectMapper objectMapper;
 
     public MatchCardAdaptor(LiveMatchCacheJpaRepository liveMatchCacheJpaRepository,
-                            MatchRepository matchRepository) {
+                            MatchEntityRepository matchEntityRepository) {
         this.liveMatchCacheJpaRepository = liveMatchCacheJpaRepository;
-        this.matchRepository = matchRepository;
+        this.matchEntityRepository = matchEntityRepository;
         this.objectMapper = new ObjectMapper(); // could also be injected as a bean
     }
 
     @Override
     public Match getCachedMatch(long matchId) {
-        MatchEntity matchEntity = matchRepository.findById(matchId)
+        MatchEntity matchEntity = matchEntityRepository.findById(matchId)
                 .orElseThrow(() -> new IllegalStateException("Match cache not found"));
         LiveMatchCardCacheEntity cacheEntity = matchEntity.getMatchCardCacheEntity();
         if (cacheEntity == null || cacheEntity.getCache() == null) {
@@ -43,13 +44,12 @@ public class MatchCardAdaptor implements MatchCardRepository {
 
     @Override
     public void cacheMatch(Match match) {
-        MatchEntity matchEntity = matchRepository.findById(match.matchId())
+        MatchEntity matchEntity = matchEntityRepository.findById(match.matchId())
                 .orElseThrow();
         LiveMatchCardCacheEntity cacheEntity = matchEntity.getMatchCardCacheEntity();
         if (cacheEntity == null) {
             cacheEntity = new LiveMatchCardCacheEntity();
         }
-
         try {
             String json = objectMapper.writeValueAsString(match);
             cacheEntity.setCache(json);
@@ -58,12 +58,12 @@ public class MatchCardAdaptor implements MatchCardRepository {
         }
 
         matchEntity.setMatchCardCacheEntity(cacheEntity);
-        matchRepository.save(matchEntity);
+        matchEntityRepository.save(matchEntity);
     }
 
     @Override
     public void removeLiveMatches(long matchId) {
-        MatchEntity matchEntity = matchRepository.findById(matchId)
+        MatchEntity matchEntity = matchEntityRepository.findById(matchId)
                 .orElseThrow();
         LiveMatchCardCacheEntity cache = matchEntity.getMatchCardCacheEntity();
         if (cache != null) {

@@ -6,8 +6,12 @@ import com.fastx.live_score.domain.Scoreboard;
 import com.fastx.live_score.domain.in.MatchEventService;
 import com.fastx.live_score.domain.out.MatchCardRepository;
 import com.fastx.live_score.infra.db.entities.MatchEntity;
+import com.fastx.live_score.infra.db.entities.PlayerEntity;
+import com.fastx.live_score.infra.db.entities.TournamentEntity;
 import com.fastx.live_score.infra.db.entities.enums.MatchStatus;
-import com.fastx.live_score.infra.db.jpaRepository.MatchRepository;
+import com.fastx.live_score.infra.db.entities.enums.TournamentStatus;
+import com.fastx.live_score.infra.db.jpaRepository.MatchEntityRepository;
+import com.fastx.live_score.infra.db.jpaRepository.TournamentJpaRepository;
 import jakarta.transaction.Transactional;
 import org.fastX.MatchController;
 import org.fastX.PrintService;
@@ -15,34 +19,46 @@ import org.fastX.models.Match;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional
 public class MatchEventServiceImpl implements MatchEventService {
 
-    private final MatchRepository matchRepository;
+    private final MatchEntityRepository matchEntityRepository;
     private final MatchCardRepository matchCardRepository;
+    private final TournamentJpaRepository tournamentJpaRepository;
 
     @Autowired
-    public MatchEventServiceImpl(
-            MatchRepository matchRepository,
-            MatchCardRepository matchCardRepository
-    ) {
-        this.matchRepository = matchRepository;
+    public MatchEventServiceImpl(MatchEntityRepository matchEntityRepository, MatchCardRepository matchCardRepository,
+                                 TournamentJpaRepository tournamentJpaRepository) {
+        this.matchEntityRepository = matchEntityRepository;
         this.matchCardRepository = matchCardRepository;
+        this.tournamentJpaRepository = tournamentJpaRepository;
     }
 
+
     @Override
-    public Match startMatch(long matchId) {
-        MatchEntity matchEntity = matchRepository.findById(matchId)
-                .orElseThrow(() -> new IllegalArgumentException("Match not found"));
-        MatchController controller = MatchController.startMatch(
-                matchEntity.getId(),
-                ScoreCardMapper.fromTeamEntity(matchEntity.getTeamEntityA()),
-                ScoreCardMapper.fromTeamEntity(matchEntity.getTeamEntityB()),
-                matchEntity.getTotalOvers(), 2
-        );
+    public Match startMatch(long matchId, List<Long> teamA, List<Long> teamB) {
+
+        MatchEntity matchEntity = matchEntityRepository.findById(matchId).orElseThrow(() -> new IllegalArgumentException("Match not found"));
+
+        MatchController controller = MatchController.startMatch(matchEntity.getId(),
+                ScoreCardMapper.fromTeamEntity("A", teamA, matchEntity.getTeamEntityA()),
+                ScoreCardMapper.fromTeamEntity("B", teamB, matchEntity.getTeamEntityB()),
+                matchEntity.getTotalOvers(), 2);
+
         matchEntity.setMatchStatus(MatchStatus.IN_PROGRESS);
-        matchRepository.save(matchEntity);
+        if (matchEntity.getTournament() != null) {
+            TournamentEntity tournament = matchEntity.getTournament();
+            if (matchEntity.getTournament().getTournamentStatus() != TournamentStatus.LIVE) {
+                tournament.setTournamentStatus(TournamentStatus.LIVE);
+                tournamentJpaRepository.save(tournament);
+            }
+        }
+        matchEntityRepository.save(matchEntity);
         Match match = controller.getMatch();
         matchCardRepository.cacheMatch(match);
         return match;
@@ -61,8 +77,7 @@ public class MatchEventServiceImpl implements MatchEventService {
     public Scoreboard startInnings(Long matchId, Long teamId, Long strikerId, Long nonStrikerId, Long bowlerId) {
         Match cachedMatch = matchCardRepository.getCachedMatch(matchId);
         MatchController matchController = new MatchController(cachedMatch);
-        Match match = matchController.startNewInnings(teamId, strikerId, nonStrikerId, bowlerId)
-                .getMatch();
+        Match match = matchController.startNewInnings(teamId, strikerId, nonStrikerId, bowlerId).getMatch();
         matchCardRepository.cacheMatch(match);
         return ScoreboardMapper.toDto(match);
     }
@@ -70,9 +85,7 @@ public class MatchEventServiceImpl implements MatchEventService {
     @Override
     public Scoreboard addBallEvent(long matchId, String input) {
         Match match = matchCardRepository.getCachedMatch(matchId);
-        Match updatedMatch = new MatchController(match)
-                .completeDelivery(input)
-                .getMatch();
+        Match updatedMatch = new MatchController(match).completeDelivery(input).getMatch();
         matchCardRepository.cacheMatch(updatedMatch);
         return ScoreboardMapper.toDto(updatedMatch);
     }

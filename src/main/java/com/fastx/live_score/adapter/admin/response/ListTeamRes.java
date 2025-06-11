@@ -1,6 +1,6 @@
 package com.fastx.live_score.adapter.admin.response;
 
-import com.fastx.live_score.domain.models.Team;
+import com.fastx.live_score.domain.models.match.Team;
 import lombok.Getter;
 
 @Getter

@@ -3,7 +3,7 @@ package com.fastx.live_score.adapter.admin.controller;
 import com.fastx.live_score.adapter.admin.response.ListPlayerRes;
 import com.fastx.live_score.core.config.ApiDocsTags;
 import com.fastx.live_score.adapter.admin.request.PlayerRequest;
-import com.fastx.live_score.domain.models.Player;
+import com.fastx.live_score.domain.models.match.Player;
 import com.fastx.live_score.domain.in.PlayerService;
 import com.fastx.live_score.core.utils.AppResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

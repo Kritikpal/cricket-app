@@ -1,4 +1,4 @@
-package com.fastx.live_score.adapter.ball_user;
+package com.fastx.live_score.adapter.ball_user.req;
 
 import lombok.Data;
 
