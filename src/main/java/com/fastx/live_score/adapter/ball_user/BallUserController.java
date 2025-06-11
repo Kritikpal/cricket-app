@@ -43,8 +43,13 @@ public class BallUserController {
     }
 
     @PutMapping("/addScore")
-    public AppResponse<Scoreboard> addScore(@PathVariable Long id, @RequestBody AddScoreRequest score) {
-        return AppResponse.success(matchEventService.addBallEvent(id, score.getScore()));
+    public AppResponse<Scoreboard> addScore(@PathVariable Long id, @Valid @RequestBody AddScoreRequest score) {
+
+        return AppResponse.success(matchEventService.addBallEvent(id,
+                score.score(),
+                score.dismissBy(),
+                score.dismissType(),
+                score.dismissPlayer()));
     }
 
     @GetMapping("/scoreBoard")

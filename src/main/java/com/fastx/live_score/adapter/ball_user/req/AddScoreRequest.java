@@ -1,9 +1,11 @@
 package com.fastx.live_score.adapter.ball_user.req;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotEmpty;
+import org.fastX.enums.DismissType;
 
-@Data
-public class AddScoreRequest {
+public record AddScoreRequest(@NotEmpty() String score,
+                              Long dismissBy,
+                              DismissType dismissType,
+                              Long dismissPlayer) {
 
-    private String score;
 }

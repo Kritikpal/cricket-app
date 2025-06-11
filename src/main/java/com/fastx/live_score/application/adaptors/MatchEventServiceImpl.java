@@ -6,7 +6,6 @@ import com.fastx.live_score.domain.Scoreboard;
 import com.fastx.live_score.domain.in.MatchEventService;
 import com.fastx.live_score.domain.out.MatchCardRepository;
 import com.fastx.live_score.infra.db.entities.MatchEntity;
-import com.fastx.live_score.infra.db.entities.PlayerEntity;
 import com.fastx.live_score.infra.db.entities.TournamentEntity;
 import com.fastx.live_score.infra.db.entities.enums.MatchStatus;
 import com.fastx.live_score.infra.db.entities.enums.TournamentStatus;
@@ -15,13 +14,12 @@ import com.fastx.live_score.infra.db.jpaRepository.TournamentJpaRepository;
 import jakarta.transaction.Transactional;
 import org.fastX.MatchController;
 import org.fastX.PrintService;
+import org.fastX.enums.DismissType;
 import org.fastX.models.Match;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -83,9 +81,10 @@ public class MatchEventServiceImpl implements MatchEventService {
     }
 
     @Override
-    public Scoreboard addBallEvent(long matchId, String input) {
+    public Scoreboard addBallEvent(Long matchId, String input, Long dismissBy, DismissType dismissType, Long dismissPlayer) {
         Match match = matchCardRepository.getCachedMatch(matchId);
-        Match updatedMatch = new MatchController(match).completeDelivery(input).getMatch();
+        Match updatedMatch = new MatchController(match).completeDelivery
+                (input, dismissType, dismissBy, dismissPlayer).getMatch();
         matchCardRepository.cacheMatch(updatedMatch);
         return ScoreboardMapper.toDto(updatedMatch);
     }

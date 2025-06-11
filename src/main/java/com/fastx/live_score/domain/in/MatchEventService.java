@@ -1,6 +1,7 @@
 package com.fastx.live_score.domain.in;
 
 import com.fastx.live_score.domain.Scoreboard;
+import org.fastX.enums.DismissType;
 import org.fastX.models.Match;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ public interface MatchEventService {
 
     Match startMatch(long matchId, List<Long> teamA, List<Long> teamB) throws IOException, ClassNotFoundException;
 
-    Scoreboard addBallEvent(long matchId, String string);
+    Scoreboard addBallEvent(Long matchId, String input, Long dismissBy, DismissType dismissType, Long dismissPlayer);
 
     Match startOver(long matchId, long bowlerName);
 

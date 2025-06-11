@@ -55,20 +55,18 @@ public class MatchController {
         return this;
     }
 
-    public MatchController completeDeliveryWithWicket(String scoreString, DismissType dismissType, Long dismissedBy, boolean isStriker) {
+    public MatchController completeDelivery(String scoreString, DismissType dismissType, Long dismissedBy, Long dismisPlayer) {
         Score score = Score.parse(scoreString);
         BallCompleteEvent.BallCompleteEventBuilder builder = buildScoreEvent(score);
-
         if (score.isWicket()) {
-            builder.dismissal(buildDismissal(dismissType, dismissedBy, isStriker));
+            builder.dismissal(buildDismissal(dismissType, dismissedBy, dismisPlayer));
         }
-
         match = match.triggerEvent(builder.build());
         return this;
     }
 
 
-    private Dismissal buildDismissal(DismissType type, Long dismissedById, boolean isStriker) {
+    private Dismissal buildDismissal(DismissType type, Long dismissedById, Long dismissPlayerId) {
         Innings innings = match.currentInnings();
         if (type.isBowler()) {
             return new Dismissal(type, innings.currentBowler().player(), innings.striker().player());
@@ -77,9 +75,8 @@ public class MatchController {
         if (dismissedById == null) throw new GameException("Dismissed by player ID is required", 3003);
 
         Player dismissedBy = match.getBowlingTeam().getPlayerById(dismissedById);
-        Player dismissed = isStriker ? innings.striker().player() : innings.nonStriker().player();
-
-        return new Dismissal(type, dismissedBy, dismissed);
+        Player dismisPlayer = match.getBattingTeam().getPlayerById(dismissPlayerId);
+        return new Dismissal(type, dismissedBy, dismisPlayer);
     }
 
     private BallCompleteEvent.BallCompleteEventBuilder buildScoreEvent(Score score) {
